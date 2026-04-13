@@ -1,5 +1,7 @@
 package org.example.restaurantbackend.controller
 
+import org.example.restaurantbackend.dto.LoginRequest
+import org.example.restaurantbackend.dto.LoginResponse
 import org.example.restaurantbackend.dto.RegisterRequest
 import org.example.restaurantbackend.service.UserService
 import org.springframework.http.HttpStatus
@@ -20,4 +22,11 @@ class AuthController(
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully")
     }
 
+    @PostMapping("/login")
+    fun login(@RequestBody request: LoginRequest): ResponseEntity<LoginResponse> {
+        val response = userService.loginUser(request)
+            ?: throw RuntimeException("Invalid email or password")
+
+        return ResponseEntity.ok(response)
+    }
 }
