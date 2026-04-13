@@ -6,12 +6,14 @@ import org.example.restaurantbackend.dto.RegisterRequest
 import org.example.restaurantbackend.entity.UserEntity
 import org.example.restaurantbackend.repository.UserRepository
 import org.springframework.http.HttpStatus
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UserService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder
 ) {
     fun registerUser(request: RegisterRequest) {
         if (userRepository.existsByEmail(request.email)) {
@@ -22,7 +24,7 @@ class UserService(
             name = request.name
             surname = request.surname
             email = request.email
-            passwordHash = request.password
+            passwordHash = passwordEncoder.encode(request.password).toString()
         }
 
         userRepository.save(createdUser)
@@ -32,7 +34,7 @@ class UserService(
         val user = (userRepository.findByEmail(request.email))
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
 
-        if (user.passwordHash != request.password) {
+        if (!passwordEncoder.matches(request.password, user.passwordHash)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
         }
 
