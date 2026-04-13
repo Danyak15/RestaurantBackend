@@ -5,7 +5,9 @@ import org.example.restaurantbackend.dto.LoginResponse
 import org.example.restaurantbackend.dto.RegisterRequest
 import org.example.restaurantbackend.entity.UserEntity
 import org.example.restaurantbackend.repository.UserRepository
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UserService(
@@ -13,7 +15,7 @@ class UserService(
 ) {
     fun registerUser(request: RegisterRequest) {
         if (userRepository.existsByEmail(request.email)) {
-            throw RuntimeException("User with this email already exists")
+            throw ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exists")
         }
 
         val createdUser = UserEntity().apply {
@@ -27,10 +29,11 @@ class UserService(
     }
 
     fun loginUser(request: LoginRequest): LoginResponse? {
-        val user = (userRepository.findByEmail(request.email)) ?: return null
+        val user = (userRepository.findByEmail(request.email))
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
 
         if (user.passwordHash != request.password) {
-            return null
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
         }
 
         return LoginResponse(

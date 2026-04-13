@@ -1,5 +1,6 @@
 package org.example.restaurantbackend.controller
 
+import jakarta.validation.Valid
 import org.example.restaurantbackend.dto.LoginRequest
 import org.example.restaurantbackend.dto.LoginResponse
 import org.example.restaurantbackend.dto.RegisterRequest
@@ -17,16 +18,14 @@ class AuthController(
     private val userService: UserService
 ) {
     @PostMapping("/register")
-    fun register(@RequestBody request: RegisterRequest): ResponseEntity<String> {
+    fun register(@Valid @RequestBody request: RegisterRequest): ResponseEntity<String> {
         userService.registerUser(request)
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully")
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequest): ResponseEntity<LoginResponse> {
+    fun login(@Valid @RequestBody request: LoginRequest): ResponseEntity<LoginResponse> {
         val response = userService.loginUser(request)
-            ?: throw RuntimeException("Invalid email or password")
-
         return ResponseEntity.ok(response)
     }
 }
