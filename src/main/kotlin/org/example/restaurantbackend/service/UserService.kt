@@ -30,7 +30,7 @@ class UserService(
         userRepository.save(createdUser)
     }
 
-    fun loginUser(request: LoginRequest): LoginResponse? {
+    fun loginUser(request: LoginRequest): LoginResponse {
         val user = (userRepository.findByEmail(request.email))
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
 

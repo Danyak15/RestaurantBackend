@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.server.ResponseStatusException
 
 @RestControllerAdvice
-class ExceptionHandler {
+class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationException(ex: MethodArgumentNotValidException): ResponseEntity<Map<String, Any>> {

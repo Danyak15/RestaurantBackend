@@ -1,6 +1,6 @@
 package org.example.restaurantbackend.controller
 
-import org.example.restaurantbackend.dto.LoginResponse
+import org.example.restaurantbackend.dto.UserResponse
 import org.example.restaurantbackend.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
@@ -15,13 +15,13 @@ class UserController(
     private val userRepository: UserRepository
 ) {
     @GetMapping("/me")
-    fun me(authentication: Authentication): LoginResponse {
+    fun me(authentication: Authentication): UserResponse {
         val email = authentication.name
 
         val user = userRepository.findByEmail(email)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
 
-        return LoginResponse(
+        return UserResponse(
             id = user.id,
             name = user.name,
             surname = user.surname,
