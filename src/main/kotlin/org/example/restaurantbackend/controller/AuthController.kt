@@ -1,9 +1,9 @@
 package org.example.restaurantbackend.controller
 
 import jakarta.validation.Valid
-import org.example.restaurantbackend.dto.LoginRequest
-import org.example.restaurantbackend.dto.LoginResponse
-import org.example.restaurantbackend.dto.RegisterRequest
+import org.example.restaurantbackend.dto.request.LoginRequest
+import org.example.restaurantbackend.dto.response.LoginResponse
+import org.example.restaurantbackend.dto.request.RegisterRequest
 import org.example.restaurantbackend.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

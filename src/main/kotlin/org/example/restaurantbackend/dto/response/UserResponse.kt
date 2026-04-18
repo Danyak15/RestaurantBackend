@@ -1,4 +1,4 @@
-package org.example.restaurantbackend.dto
+package org.example.restaurantbackend.dto.response
 
 data class UserResponse(
     val id: Long?,

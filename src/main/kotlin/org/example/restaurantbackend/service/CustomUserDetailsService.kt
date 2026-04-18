@@ -1,8 +1,6 @@
 package org.example.restaurantbackend.service
 
-import org.example.restaurantbackend.dto.LoginResponse
 import org.example.restaurantbackend.repository.UserRepository
-import org.springframework.security.config.annotation.web.SecurityMarker
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
