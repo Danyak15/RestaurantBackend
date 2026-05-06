@@ -20,7 +20,7 @@ class AuthController(
     @PostMapping("/register")
     fun register(@Valid @RequestBody request: RegisterRequest): ResponseEntity<String> {
         userService.registerUser(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully")
+        return ResponseEntity.status(HttpStatus.CREATED).body("Пользователь зарегестрирован")
     }
 
     @PostMapping("/login")

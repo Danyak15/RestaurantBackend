@@ -15,14 +15,17 @@ class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
+    @Column(nullable = false, unique = true)
+    var phone: String = ""
+
     @Column(nullable = false)
     var name: String = ""
 
     @Column(nullable = false)
     var surname: String = ""
 
-    @Column(nullable = false, unique = true)
-    var email: String = ""
+    @Column(nullable = true)
+    var email: String? = null
 
     @Column(name = "password_hash", nullable = false)
     var passwordHash: String = ""

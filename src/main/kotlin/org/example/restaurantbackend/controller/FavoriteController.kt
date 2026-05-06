@@ -18,7 +18,8 @@ class FavoriteController(
 ) {
     @GetMapping
     fun getFavorites(authentication: Authentication): List<Int> {
-        return favoriteService.getFavorites(authentication.name)
+        val userId = authentication.name.toLong()
+        return favoriteService.getFavorites(userId)
     }
 
     @PostMapping("/{dishId}")
@@ -27,7 +28,8 @@ class FavoriteController(
         authentication: Authentication,
         @PathVariable dishId: Int
     ) {
-        favoriteService.addFavorite(authentication.name, dishId)
+        val userId = authentication.name.toLong()
+        favoriteService.addFavorite(userId, dishId)
     }
 
     @DeleteMapping("/{dishId}")
@@ -36,6 +38,7 @@ class FavoriteController(
         authentication: Authentication,
         @PathVariable dishId: Int
     ) {
-        favoriteService.removeFavorite(authentication.name, dishId)
+        val userId = authentication.name.toLong()
+        favoriteService.removeFavorite(userId, dishId)
     }
 }

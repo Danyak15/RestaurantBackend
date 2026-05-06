@@ -4,11 +4,14 @@ import org.example.restaurantbackend.dto.request.ReservationRequest
 import org.example.restaurantbackend.dto.response.TimeSlotResponse
 import org.example.restaurantbackend.entity.ReservationEntity
 import org.example.restaurantbackend.entity.ReservationStatus
+import org.example.restaurantbackend.entity.UserEntity
 import org.example.restaurantbackend.repository.ReservationRepository
 import org.example.restaurantbackend.repository.RestaurantTableRepository
 import org.example.restaurantbackend.repository.UserRepository
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -19,20 +22,20 @@ class ReservationService(
     private val restaurantTableRepository: RestaurantTableRepository,
     private val userRepository: UserRepository
 ) {
-    fun getReservations(email: String): List<ReservationEntity> {
-        val user = findUser(email)
+    fun getReservations(userId: Long): List<ReservationEntity> {
+        val user = findUser(userId)
         return reservationRepository.findAllByUserOrderByStartTimeAsc(user)
     }
 
-    fun createReservation(email: String, request: ReservationRequest): ReservationEntity {
-        val user = findUser(email)
+    fun createReservation(userId: Long, request: ReservationRequest): ReservationEntity {
+        val user = findUser(userId)
 
         if (request.guests <= 0) {
-            throw IllegalArgumentException("Количество гостей должно быть больше 0")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Количество гостей должно быть больше 0")
         }
 
         if (request.dateTime.isBefore(LocalDateTime.now())) {
-            throw IllegalArgumentException("Нельзя создать бронь на прошедшее время")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Нельзя создать бронь на прошедшее время")
         }
 
         val startTime = request.dateTime
@@ -53,7 +56,7 @@ class ReservationService(
         val availableTable = suitableTables.firstOrNull { table ->
             val tableId = table.id
             tableId != null && tableId !in busyTables
-        } ?: throw IllegalArgumentException("Нет свободных столиков на выбранное время")
+        } ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Нет свободных столиков на выбранное время")
 
         val reservation = ReservationEntity().apply {
             this.user = user
@@ -67,11 +70,11 @@ class ReservationService(
         return reservationRepository.save(reservation)
     }
 
-    fun cancelReservation(email: String, id: Long): ReservationEntity {
-        val user = findUser(email)
+    fun cancelReservation(userId: Long, id: Long): ReservationEntity {
+        val user = findUser(userId)
 
         val reservation = reservationRepository.findByIdAndUser(id, user)
-            ?: throw IllegalArgumentException("Бронирование не найдено")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Бронирование не найдено")
 
         if (reservation.status == ReservationStatus.CANCELLED) {
             return reservation
@@ -87,7 +90,7 @@ class ReservationService(
         guests: Int
         ): List<TimeSlotResponse> {
         if (guests <= 0) {
-            throw IllegalArgumentException("Количество гостей должно быть больше 0")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Количество гостей должно быть больше 0")
         }
 
         val result = mutableListOf<TimeSlotResponse>()
@@ -129,7 +132,8 @@ class ReservationService(
         return result
     }
 
-    private fun findUser(email: String) =
-        userRepository.findByEmail(email)
-            ?: throw UsernameNotFoundException("Пользователь не найден")
+    private fun findUser(userId: Long): UserEntity {
+        return userRepository.findById(userId)
+            .orElseThrow { UsernameNotFoundException("Пользователь не найден") }
+    }
 }

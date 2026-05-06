@@ -4,13 +4,12 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 
 data class UpdateUserRequest(
-    @field:NotBlank(message = "Name must not be empty")
+    @field:NotBlank(message = "Имя не должно быть пустым")
     val name: String,
 
-    @field:NotBlank(message = "Surname must not be empty")
+    @field:NotBlank(message = "Фамилия не должна быть пустой")
     val surname: String,
 
-    @field:Email(message = "Email is not valid")
-    @field:NotBlank(message = "Email must not be empty")
-    val email: String
+    @field:Email(message = "Некорректный Email")
+    val email: String?
 )

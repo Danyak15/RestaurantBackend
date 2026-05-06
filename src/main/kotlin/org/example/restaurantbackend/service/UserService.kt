@@ -1,5 +1,6 @@
 package org.example.restaurantbackend.service
 
+import org.example.restaurantbackend.dto.mappers.toResponse
 import org.example.restaurantbackend.dto.request.LoginRequest
 import org.example.restaurantbackend.dto.response.LoginResponse
 import org.example.restaurantbackend.dto.request.RegisterRequest
@@ -16,58 +17,63 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val jwtService: JwtService
 ) {
     fun registerUser(request: RegisterRequest) {
-        if (userRepository.existsByEmail(request.email)) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exists")
+        if (userRepository.existsByPhone(request.phone)) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Пользователь с таким номером уже существует")
         }
 
         val createdUser = UserEntity().apply {
             name = request.name
             surname = request.surname
-            email = request.email
-            passwordHash = passwordEncoder.encode(request.password).toString()
+            phone = request.phone
+            passwordHash = passwordEncoder.encode(request.password)
+                ?: throw IllegalStateException("Пароль пользователя null")
         }
 
         userRepository.save(createdUser)
     }
 
     fun loginUser(request: LoginRequest): LoginResponse {
-        val user = (userRepository.findByEmail(request.email))
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
+        val user = (userRepository.findByPhone(request.phone))
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Неверный телефон или пароль")
 
         if (!passwordEncoder.matches(request.password, user.passwordHash)) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Неверный телефон или пароль")
         }
 
+        val token = jwtService.generateToken(user)
+
         return LoginResponse(
-            id = user.id,
-            name = user.name,
-            surname = user.surname,
-            email = user.email
+            token = token,
+            user = user.toResponse()
         )
     }
 
-    fun updateUser(currentEmail: String, request: UpdateUserRequest): UserResponse {
-        val user = userRepository.findByEmail(currentEmail)
-            ?: throw UsernameNotFoundException("User not found")
+    fun getUser(userId: Long): UserResponse {
+        val user = findUser(userId)
+        return user.toResponse()
+    }
 
-        if (user.email != request.email && userRepository.existsByEmail(request.email)) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exists")
-        }
+    fun updateUser(userId: Long, request: UpdateUserRequest): UserResponse {
+        val user = findUser(userId)
+
+        val email = request.email
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
 
         user.name = request.name
         user.surname = request.surname
-        user.email = request.email
-
+        user.email = email
         val changedUser = userRepository.save(user)
 
-        return UserResponse(
-            id = changedUser.id,
-            name = changedUser.name,
-            surname = changedUser.surname,
-            email = changedUser.email
-        )
+        return changedUser.toResponse()
+    }
+
+    private fun findUser(userId: Long): UserEntity {
+        return userRepository.findById(userId)
+            .orElseThrow { UsernameNotFoundException("Пользователь не найден") }
     }
 }

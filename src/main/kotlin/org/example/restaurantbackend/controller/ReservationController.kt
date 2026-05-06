@@ -25,8 +25,10 @@ class ReservationController(
 ) {
     @GetMapping("/me")
     fun getMyReservations(authentication: Authentication): ResponseEntity<List<ReservationResponse>> {
+        val userId = authentication.name.toLong()
+
         val reservations = reservationService
-            .getReservations(authentication.name)
+            .getReservations(userId)
             .map { it.toResponse() }
 
         return ResponseEntity.ok(reservations)
@@ -37,8 +39,10 @@ class ReservationController(
         authentication: Authentication,
         @RequestBody request: ReservationRequest
         ): ResponseEntity<ReservationResponse> {
+        val userId = authentication.name.toLong()
+
         val reservation = reservationService
-            .createReservation(authentication.name, request)
+            .createReservation(userId, request)
             .toResponse()
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation)
@@ -49,8 +53,10 @@ class ReservationController(
         authentication: Authentication,
         @PathVariable id: Long
     ): ResponseEntity<ReservationResponse> {
+        val userId = authentication.name.toLong()
+
         val reservation = reservationService
-            .cancelReservation(authentication.name, id)
+            .cancelReservation(userId, id)
             .toResponse()
 
         return ResponseEntity.ok(reservation)
