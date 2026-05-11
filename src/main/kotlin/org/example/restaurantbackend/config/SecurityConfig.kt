@@ -27,7 +27,7 @@ class SecurityConfig(
             }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/reservations/available-times", "/auth/**", "/h2-console/**").permitAll()
+                    .requestMatchers("/reservations/available-times", "/news", "/auth/**", "/h2-console/**").permitAll()
                     .anyRequest().authenticated()
             }
             .headers { headers ->
