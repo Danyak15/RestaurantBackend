@@ -29,4 +29,10 @@ class UserEntity {
 
     @Column(name = "password_hash", nullable = false)
     var passwordHash: String = ""
+
+    @Column(name = "loyalty_points", nullable = false)
+    var loyaltyPoints: Int = 0
+
+    @Column(name = "loyalty_level", nullable = false)
+    var loyaltyLevel: String = ""
 }

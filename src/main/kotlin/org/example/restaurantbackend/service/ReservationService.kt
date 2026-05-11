@@ -11,6 +11,7 @@ import org.example.restaurantbackend.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,15 +19,18 @@ import java.time.LocalTime
 
 @Service
 class ReservationService(
+    private val loyaltyService: LoyaltyService,
     private val reservationRepository: ReservationRepository,
     private val restaurantTableRepository: RestaurantTableRepository,
     private val userRepository: UserRepository
 ) {
+    @Transactional(readOnly = true)
     fun getReservations(userId: Long): List<ReservationEntity> {
         val user = findUser(userId)
         return reservationRepository.findAllByUserOrderByStartTimeAsc(user)
     }
 
+    @Transactional
     fun createReservation(userId: Long, request: ReservationRequest): ReservationEntity {
         val user = findUser(userId)
 
@@ -67,9 +71,12 @@ class ReservationService(
             guests = request.guests
         }
 
+        loyaltyService.addPoints(user, 10)
+
         return reservationRepository.save(reservation)
     }
 
+    @Transactional
     fun cancelReservation(userId: Long, id: Long): ReservationEntity {
         val user = findUser(userId)
 
@@ -84,6 +91,7 @@ class ReservationService(
         return reservationRepository.save(reservation)
     }
 
+    @Transactional
     fun getAvailableTimes(
         restaurantId: Int,
         date: LocalDate,

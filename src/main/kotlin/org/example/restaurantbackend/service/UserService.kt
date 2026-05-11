@@ -1,6 +1,6 @@
 package org.example.restaurantbackend.service
 
-import org.example.restaurantbackend.dto.mappers.toResponse
+import org.example.restaurantbackend.dto.mappers.UserMapper
 import org.example.restaurantbackend.dto.request.LoginRequest
 import org.example.restaurantbackend.dto.response.LoginResponse
 import org.example.restaurantbackend.dto.request.RegisterRequest
@@ -18,7 +18,8 @@ import org.springframework.web.server.ResponseStatusException
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtService: JwtService
+    private val jwtService: JwtService,
+    private val userMapper: UserMapper
 ) {
     fun registerUser(request: RegisterRequest) {
         if (userRepository.existsByPhone(request.phone)) {
@@ -48,13 +49,13 @@ class UserService(
 
         return LoginResponse(
             token = token,
-            user = user.toResponse()
+            user = userMapper.toResponse(user)
         )
     }
 
     fun getUser(userId: Long): UserResponse {
         val user = findUser(userId)
-        return user.toResponse()
+        return userMapper.toResponse(user)
     }
 
     fun updateUser(userId: Long, request: UpdateUserRequest): UserResponse {
@@ -69,7 +70,7 @@ class UserService(
         user.email = email
         val changedUser = userRepository.save(user)
 
-        return changedUser.toResponse()
+        return userMapper.toResponse(changedUser)
     }
 
     private fun findUser(userId: Long): UserEntity {

@@ -5,5 +5,7 @@ data class UserResponse(
     val phone: String,
     val name: String,
     val surname: String,
-    val email: String?
+    val email: String?,
+    val loyaltyPoints: Int,
+    val loyaltyLevel: String
 )
