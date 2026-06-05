@@ -2,6 +2,7 @@ package org.example.restaurantbackend.dto.response
 
 data class UserResponse(
     val id: Long,
+    val role: String,
     val phone: String,
     val name: String,
     val surname: String,

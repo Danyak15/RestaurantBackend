@@ -2,11 +2,14 @@ package org.example.restaurantbackend.service
 
 import org.example.restaurantbackend.dto.mappers.toResponse
 import org.example.restaurantbackend.dto.request.CreateNewsRequest
+import org.example.restaurantbackend.dto.request.UpdateNewsRequest
 import org.example.restaurantbackend.dto.response.NewsResponse
 import org.example.restaurantbackend.entity.NewsEntity
 import org.example.restaurantbackend.repository.NewsRepository
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 
 @Service
@@ -27,14 +30,27 @@ class NewsService(
     }
 
     @Transactional
-    fun createNews(request: CreateNewsRequest) {
+    fun createNews(request: CreateNewsRequest): NewsResponse {
         val news = NewsEntity().apply {
             restaurantId = request.restaurantId
             title = request.title
+            content = request.content
             createdAt = LocalDateTime.now().toString()
         }
 
-        newsRepository.save(news)
+        return newsRepository.save(news).toResponse()
+    }
+
+    @Transactional
+    fun updateNews(id: Long, request: UpdateNewsRequest): NewsResponse {
+        val news = newsRepository.findById(id)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Новость не найдена") }
+
+        request.restaurantId?.let { news.restaurantId = it }
+        request.title?.let { news.title = it }
+        request.content?.let { news.content = it }
+
+        return newsRepository.save(news).toResponse()
     }
 
     @Transactional

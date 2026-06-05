@@ -15,7 +15,7 @@ interface ReservationRepository : JpaRepository<ReservationEntity, Long> {
        WHERE r.restaurantId = :restaurantId
        AND r.startTime < :endTime
        AND r.endTime > :startTime
-       AND r.status = org.example.restaurantbackend.entity.ReservationStatus.ACTIVE
+       AND r.status = org.example.restaurantbackend.entity.enums.ReservationStatus.ACTIVE
     """)
     fun findBusyTableIds(
         restaurantId: Int,

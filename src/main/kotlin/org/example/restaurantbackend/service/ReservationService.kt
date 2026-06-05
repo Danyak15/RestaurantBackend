@@ -3,7 +3,7 @@ package org.example.restaurantbackend.service
 import org.example.restaurantbackend.dto.request.ReservationRequest
 import org.example.restaurantbackend.dto.response.TimeSlotResponse
 import org.example.restaurantbackend.entity.ReservationEntity
-import org.example.restaurantbackend.entity.ReservationStatus
+import org.example.restaurantbackend.entity.enums.ReservationStatus
 import org.example.restaurantbackend.entity.UserEntity
 import org.example.restaurantbackend.repository.ReservationRepository
 import org.example.restaurantbackend.repository.RestaurantTableRepository

@@ -1,4 +1,4 @@
-package org.example.restaurantbackend.entity
+package org.example.restaurantbackend.entity.enums
 
 enum class ReservationStatus {
     ACTIVE,
