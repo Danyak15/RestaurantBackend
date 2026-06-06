@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse
 import org.example.restaurantbackend.repository.UserRepository
 import org.example.restaurantbackend.service.JwtService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
@@ -45,7 +44,7 @@ class JwtAuthenticationFilter(
         val authentication = UsernamePasswordAuthenticationToken(
             user.id.toString(),
             null,
-            listOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
+            emptyList()
         )
 
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)

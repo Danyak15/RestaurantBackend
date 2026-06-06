@@ -1,7 +1,9 @@
 package org.example.restaurantbackend.config
 
+import org.example.restaurantbackend.service.AdminDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.annotation.Order
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -13,33 +15,55 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val adminDetailsService: AdminDetailsService
 ) {
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    @Order(1)
+    fun apiFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
+            .securityMatcher("/api/**")
             .csrf { it.disable() }
             .sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/reservations/available-times", "/news", "/auth/**").permitAll()
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/api/reservations/available-times", "/api/news", "/api/news/**", "/api/auth/**").permitAll()
                     .anyRequest().authenticated()
             }
-            .headers { headers ->
-                headers.frameOptions { frame ->
-                    frame.sameOrigin()
-                }
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .build()
+    }
+
+    @Bean
+    @Order(2)
+    fun adminFilterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .securityMatcher("/admin/**")
+            .authorizeHttpRequests { auth ->
+                auth
+                    .requestMatchers("/admin/login").permitAll()
+                    .anyRequest().hasRole("ADMIN")
             }
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter::class.java
-            )
+            .formLogin { form ->
+                form
+                    .loginPage("/admin/login")
+                    .usernameParameter("login")
+                    .passwordParameter("password")
+                    .loginProcessingUrl("/admin/login")
+                    .defaultSuccessUrl("/admin/news", true)
+                    .failureUrl("/admin/login?error=true")
+            }
+            .logout { logout ->
+                logout
+                    .logoutUrl("/admin/logout")
+                    .logoutSuccessUrl("/admin/login")
+            }
+            .userDetailsService(adminDetailsService)
             .build()
     }
 }

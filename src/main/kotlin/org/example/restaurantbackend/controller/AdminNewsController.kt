@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/admin/news")
+@RequestMapping("/api/admin/news")
 @PreAuthorize("hasRole('ADMIN')")
 class AdminNewsController(
     private val newsService: NewsService

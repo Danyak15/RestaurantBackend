@@ -6,6 +6,7 @@ import org.example.restaurantbackend.dto.request.UpdateNewsRequest
 import org.example.restaurantbackend.dto.response.NewsResponse
 import org.example.restaurantbackend.entity.NewsEntity
 import org.example.restaurantbackend.repository.NewsRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,6 +28,14 @@ class NewsService(
         return news
             .sortedByDescending { it.createdAt }
             .map { it.toResponse() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getNewsById(id: Long): NewsResponse {
+        val news = newsRepository.findByIdOrNull(id)
+            ?: throw IllegalArgumentException("Новость не найдена")
+
+        return news.toResponse()
     }
 
     @Transactional

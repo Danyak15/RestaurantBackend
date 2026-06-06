@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
-@RequestMapping("/reservations")
+@RequestMapping("/api/reservations")
 class ReservationController(
     private val reservationService: ReservationService
 ) {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestParam
 
 @RestController
-@RequestMapping("/news")
+@RequestMapping("/api/news")
 class NewsController(
     private val newsService: NewsService
 ) {

@@ -1,20 +1,31 @@
 package org.example.restaurantbackend.config
 
+import org.example.restaurantbackend.entity.AdminEntity
 import org.example.restaurantbackend.entity.NewsEntity
 import org.example.restaurantbackend.entity.RestaurantTableEntity
+import org.example.restaurantbackend.repository.AdminRepository
 import org.example.restaurantbackend.repository.NewsRepository
 import org.example.restaurantbackend.repository.RestaurantTableRepository
 import org.springframework.boot.CommandLineRunner
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 @Component
 class DatabaseSeeder(
     private val restaurantTableRepository: RestaurantTableRepository,
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository,
+    private val adminRepository: AdminRepository
 ) : CommandLineRunner {
 
     override fun run(vararg args: String) {
+        if (adminRepository.count() == 0L) {
+            adminRepository.save(AdminEntity().apply {
+                login = "admin"
+                password = BCryptPasswordEncoder().encode("admin").toString()
+            })
+        }
+
         if (restaurantTableRepository.count() <= 0) {
             val tables = listOf(
                 RestaurantTableEntity().apply {

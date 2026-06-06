@@ -11,7 +11,6 @@ class UserMapper(
 ) {
     fun toResponse(user: UserEntity) = UserResponse(
         id = user.id ?: throw IllegalStateException("Id пользователя null"),
-        role = user.role.name,
         phone = user.phone,
         name = user.name,
         surname = user.surname,

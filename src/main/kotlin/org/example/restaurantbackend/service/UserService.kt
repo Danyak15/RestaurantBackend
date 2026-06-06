@@ -7,7 +7,6 @@ import org.example.restaurantbackend.dto.request.RegisterRequest
 import org.example.restaurantbackend.dto.request.UpdateUserRequest
 import org.example.restaurantbackend.dto.response.UserResponse
 import org.example.restaurantbackend.entity.UserEntity
-import org.example.restaurantbackend.entity.enums.UserRole
 import org.example.restaurantbackend.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -28,7 +27,6 @@ class UserService(
         }
 
         val createdUser = UserEntity().apply {
-            role = UserRole.USER
             name = request.name
             surname = request.surname
             phone = request.phone
