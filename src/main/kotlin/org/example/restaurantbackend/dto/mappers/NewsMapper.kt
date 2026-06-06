@@ -8,5 +8,5 @@ fun NewsEntity.toResponse() = NewsResponse(
     restaurantId = restaurantId,
     title = title,
     content = content,
-    createdAt = createdAt
+    createdAt = createdAt ?: throw IllegalStateException("Время создания новости null")
 )

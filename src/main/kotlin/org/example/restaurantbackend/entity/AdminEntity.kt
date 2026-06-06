@@ -17,6 +17,6 @@ class AdminEntity {
     @Column(nullable = false, unique = true)
     var login: String = ""
 
-    @Column(nullable = false)
-    var password: String = ""
+    @Column(name = "password_hash", nullable = false)
+    var passwordHash: String = ""
 }

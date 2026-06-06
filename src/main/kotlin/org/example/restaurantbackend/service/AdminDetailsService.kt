@@ -17,7 +17,7 @@ class AdminDetailsService(
 
         return User.builder()
             .username(admin.login)
-            .password(admin.password)
+            .password(admin.passwordHash)
             .roles("ADMIN")
             .build()
     }

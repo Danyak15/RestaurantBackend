@@ -9,7 +9,6 @@ import org.example.restaurantbackend.repository.RestaurantTableRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 
 @Component
 class DatabaseSeeder(
@@ -22,7 +21,7 @@ class DatabaseSeeder(
         if (adminRepository.count() == 0L) {
             adminRepository.save(AdminEntity().apply {
                 login = "admin"
-                password = BCryptPasswordEncoder().encode("admin").toString()
+                passwordHash = BCryptPasswordEncoder().encode("admin").toString()
             })
         }
 
@@ -113,7 +112,6 @@ class DatabaseSeeder(
                 NewsEntity().apply {
                     restaurantId = 1
                     title = "Акция: Счастливые часы"
-                    createdAt = LocalDate.now().plusDays(5).toString()
                     content = "Каждый будний день с 16:00 до 18:00 скидка 20% на все закуски и напитки."
                 },
                 NewsEntity().apply {
@@ -124,13 +122,11 @@ class DatabaseSeeder(
                 NewsEntity().apply {
                     restaurantId = 2
                     title = "Новое детское меню"
-                    createdAt = LocalDate.now().plusDays(3).toString()
                     content = "Теперь для маленьких гостей — специальное меню с полезными и вкусными блюдами."
                 },
                 NewsEntity().apply {
                     restaurantId = 3
                     title = "Гастроужин с шеф-поваром"
-                    createdAt = LocalDate.now().plusDays(10).toString()
                     content = "7-ми блочный сет от шефа с авторскими соусами и десертом. Бронирование обязательно."
                 },
                 NewsEntity().apply {

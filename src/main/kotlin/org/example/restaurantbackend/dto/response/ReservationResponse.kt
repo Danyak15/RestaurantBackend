@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 data class ReservationResponse(
     val id: Long,
+    val tableId: Long,
     val restaurantId: Int,
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
