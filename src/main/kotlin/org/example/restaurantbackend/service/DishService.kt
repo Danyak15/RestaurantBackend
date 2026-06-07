@@ -1,0 +1,121 @@
+package org.example.restaurantbackend.service
+
+import org.example.restaurantbackend.dto.mappers.toResponse
+import org.example.restaurantbackend.dto.request.DishRequest
+import org.example.restaurantbackend.dto.response.DishResponse
+import org.example.restaurantbackend.entity.DishEntity
+import org.example.restaurantbackend.repository.CategoryRepository
+import org.example.restaurantbackend.repository.DishRepository
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
+
+@Service
+class DishService(
+    private val dishRepository: DishRepository,
+    private val categoryRepository: CategoryRepository,
+    private val fileStorageService: FileStorageService
+) {
+
+    @Transactional(readOnly = true)
+    fun getDishesByCategory(categoryId: Long): List<DishResponse> {
+        return dishRepository
+            .findAllByCategoryIdOrderByDisplayOrderAscNameAsc(categoryId)
+            .map { it.toResponse() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllDishes(): List<DishResponse> {
+        return dishRepository.findAll()
+            .map { it.toResponse() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getDishesByRestaurant(restaurantId: Long): List<DishResponse> {
+        return dishRepository
+            .findAllByCategoryRestaurantIdOrderByDisplayOrderAscNameAsc(restaurantId)
+            .map { it.toResponse() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getDishById(dishId: Long): DishResponse {
+        val dish = dishRepository.findByIdOrNull(dishId)
+            ?: throw IllegalArgumentException("Блюдо не найдено")
+
+        return dish.toResponse()
+    }
+    @Transactional
+    fun createDish(
+        categoryId: Long,
+        request: DishRequest,
+        imageFile: MultipartFile
+    ): DishResponse {
+        val category = categoryRepository.findByIdOrNull(categoryId)
+            ?: throw IllegalArgumentException("Категория не найдена")
+
+        val dishName = request.name.trim()
+
+        if (dishRepository.existsByCategoryIdAndNameIgnoreCase(categoryId, dishName)) {
+            throw IllegalArgumentException("Блюдо с таким названием уже существует")
+        }
+
+        val imageUrl = fileStorageService.saveDishImage(imageFile)
+
+        val dish = DishEntity().apply {
+            this.category = category
+            name = dishName
+            price = request.price
+            weight = request.weight
+            description = request.description.trim()
+            displayOrder = request.displayOrder
+            this.imageUrl = imageUrl
+        }
+
+        return dishRepository.save(dish).toResponse()
+    }
+
+    @Transactional
+    fun updateDish(
+        categoryId: Long,
+        dishId: Long,
+        request: DishRequest,
+        imageFile: MultipartFile?
+    ): DishResponse {
+        val dish = dishRepository.findByIdOrNull(dishId)
+            ?: throw IllegalArgumentException("Блюдо не найдено")
+
+        val dishCategoryId = dish.category.id
+            ?: throw IllegalStateException("Id категории null")
+
+        if (dishCategoryId != categoryId) {
+            throw IllegalArgumentException("Блюдо не относится к выбранной категории")
+        }
+
+        val dishName = request.name.trim()
+
+        if (
+            dishRepository.existsByCategoryIdAndNameIgnoreCaseAndIdNot(
+                categoryId,
+                dishName,
+                dishId
+            )
+        ) {
+            throw IllegalArgumentException("Блюдо с таким названием уже существует")
+        }
+
+        val imageUrl = fileStorageService.replaceDishImage(
+            oldImageUrl = dish.imageUrl,
+            newFile = imageFile
+        )
+
+        dish.name = dishName
+        dish.price = request.price
+        dish.weight = request.weight
+        dish.description = request.description.trim()
+        dish.displayOrder = request.displayOrder
+        dish.imageUrl = imageUrl
+
+        return dishRepository.save(dish).toResponse()
+    }
+}

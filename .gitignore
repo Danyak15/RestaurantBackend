@@ -58,3 +58,5 @@ application-secret.yml
 ### H2 ###
 *.mv.db
 *.trace.db
+
+uploads/

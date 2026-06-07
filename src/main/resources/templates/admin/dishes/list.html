@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<div th:replace="~{admin/layout :: layout(${pageTitle}, ${breadcrumb}, ~{::section})}">
+
+    <section>
+        <div class="page-actions">
+            <div>
+                <h2 th:text="'Блюда: ' + ${category.name}">Блюда</h2>
+                <p th:text="'Ресторан: ' + ${restaurant.name}">Ресторан</p>
+            </div>
+
+            <a class="primary-button"
+               th:href="@{/admin/restaurants/{restaurantId}/categories/{categoryId}/dishes/create(restaurantId=${restaurant.id}, categoryId=${category.id})}">
+                Добавить блюдо
+            </a>
+        </div>
+
+        <div class="admin-card">
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Фото</th>
+                        <th>ID</th>
+                        <th>Порядок</th>
+                        <th>Название</th>
+                        <th>Цена</th>
+                        <th>Вес</th>
+                        <th>Описание</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="dish : ${dishes}">
+                        <td>
+                            <img class="table-image"
+                                 th:src="@{${dish.imageUrl}}"
+                                 alt="Фото блюда">
+                        </td>
+
+                        <td th:text="${dish.id}"></td>
+                        <td th:text="${dish.displayOrder}"></td>
+                        <td class="news-title" th:text="${dish.name}"></td>
+                        <td th:text="${dish.price}"></td>
+                        <td th:text="${dish.weight != null ? dish.weight + ' г' : '—'}"></td>
+                        <td th:text="${dish.description}"></td>
+
+                        <td>
+                            <div class="actions">
+                                <a class="edit-button"
+                                   th:href="@{/admin/restaurants/{restaurantId}/categories/{categoryId}/dishes/{dishId}/edit(restaurantId=${restaurant.id}, categoryId=${category.id}, dishId=${dish.id})}">
+                                    Изменить
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p th:if="${#lists.isEmpty(dishes)}" class="empty-text">
+                Блюд пока нет
+            </p>
+
+            <div class="form-actions">
+                <a class="secondary-button"
+                   th:href="@{/admin/restaurants/{restaurantId}/categories(restaurantId=${restaurant.id})}">
+                    Назад к категориям
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

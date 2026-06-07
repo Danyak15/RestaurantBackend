@@ -1,0 +1,127 @@
+package org.example.restaurantbackend.service
+
+import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import java.util.UUID
+
+@Service
+class FileStorageService {
+    private val restaurantUploadDir: Path = Paths.get("uploads/restaurants")
+    private val dishUploadDir: Path = Paths.get("uploads/dishes")
+
+    init {
+        Files.createDirectories(restaurantUploadDir)
+        Files.createDirectories(dishUploadDir)
+    }
+
+    fun saveRestaurantImage(file: MultipartFile): String {
+        if (file.isEmpty) {
+            throw IllegalArgumentException("Фото ресторана обязательно")
+        }
+
+        validateImage(file)
+
+        val extension = getExtension(file.originalFilename)
+        val fileName = "restaurant_${UUID.randomUUID()}.$extension"
+
+        val targetPath = restaurantUploadDir.resolve(fileName)
+
+        file.inputStream.use { inputStream ->
+            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING)
+        }
+
+        return "/uploads/restaurants/$fileName"
+    }
+
+    fun replaceRestaurantImage(oldImageUrl: String?, newFile: MultipartFile?): String? {
+        if (newFile == null || newFile.isEmpty) {
+            return oldImageUrl
+        }
+
+        oldImageUrl?.let { deleteFileByUrl(it) }
+        return saveRestaurantImage(newFile)
+    }
+
+    fun saveDishImage(file: MultipartFile): String {
+        if (file.isEmpty) {
+            throw IllegalArgumentException("Фото блюда обязательно")
+        }
+
+        validateImage(file)
+
+        val extension = getExtension(file.originalFilename)
+        val fileName = "dish_${UUID.randomUUID()}.$extension"
+
+        val targetPath = dishUploadDir.resolve(fileName)
+
+        file.inputStream.use { inputStream ->
+            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING)
+        }
+
+        return "/uploads/dishes/$fileName"
+    }
+
+    fun replaceDishImage(
+        oldImageUrl: String?,
+        newFile: MultipartFile?
+    ): String {
+        if (newFile == null || newFile.isEmpty) {
+            return oldImageUrl ?: ""
+        }
+
+        if (!oldImageUrl.isNullOrBlank()) {
+            deleteFileByUrl(oldImageUrl)
+        }
+
+        return saveDishImage(newFile)
+    }
+
+    private fun validateImage(file: MultipartFile) {
+        val contentType = file.contentType ?: throw IllegalArgumentException("Неизвестный тип файла")
+
+        val allowedTypes = setOf(
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp"
+        )
+
+        if (contentType !in allowedTypes) {
+            throw IllegalArgumentException("Запрещённый тип файла")
+        }
+    }
+
+    private fun getExtension(originalFilename: String?): String {
+        val extension = originalFilename
+            ?.substringAfterLast(".", "")
+            ?.lowercase()
+            ?: ""
+
+        return when (extension) {
+            "jpg", "jpeg" -> "jpg"
+            "png" -> "png"
+            "webp" -> "webp"
+            else -> "jpg"
+        }
+    }
+
+    private fun deleteFileByUrl(imageUrl: String) {
+        val path = when {
+            imageUrl.startsWith("/uploads/restaurants/") -> {
+                restaurantUploadDir.resolve(imageUrl.removePrefix("/uploads/restaurants/"))
+            }
+
+            imageUrl.startsWith("/uploads/dishes/") -> {
+                dishUploadDir.resolve(imageUrl.removePrefix("/uploads/dishes/"))
+            }
+
+            else -> return
+        }
+
+        Files.deleteIfExists(path)
+    }
+}

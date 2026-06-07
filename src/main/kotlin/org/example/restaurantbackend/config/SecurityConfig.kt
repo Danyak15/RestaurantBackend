@@ -55,7 +55,7 @@ class SecurityConfig(
                     .usernameParameter("login")
                     .passwordParameter("password")
                     .loginProcessingUrl("/admin/login")
-                    .defaultSuccessUrl("/admin/news", true)
+                    .defaultSuccessUrl("/admin/restaurants", true)
                     .failureUrl("/admin/login?error=true")
             }
             .logout { logout ->
@@ -64,6 +64,18 @@ class SecurityConfig(
                     .logoutSuccessUrl("/admin/login")
             }
             .userDetailsService(adminDetailsService)
+            .build()
+    }
+
+    @Bean
+    @Order(3)
+    fun staticFilterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .securityMatcher("/css/**", "/uploads/**")
+            .authorizeHttpRequests { auth ->
+                auth.anyRequest().permitAll()
+            }
+            .csrf { it.disable() }
             .build()
     }
 }

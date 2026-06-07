@@ -559,3 +559,126 @@ body {
 .admin-body .edit-button:hover {
     background: #dde2ec;
 }
+
+.admin-body .table-image {
+    width: 72px;
+    height: 54px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #eef0f5;
+}
+
+.admin-body .current-image {
+    width: 260px;
+    height: 160px;
+    border-radius: 16px;
+    object-fit: cover;
+    background: #eef0f5;
+    border: 1px solid #d8dde8;
+}
+
+.admin-body .form-group input[type="file"] {
+    padding: 12px;
+    background: #ffffff;
+}
+
+.admin-body .field-error {
+    margin: 6px 0 0;
+    color: #b42318;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-body .form-error {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #b42318;
+    background: rgba(180, 35, 24, 0.08);
+    border: 1px solid rgba(180, 35, 24, 0.25);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.admin-body .form-section {
+    margin-top: 16px;
+}
+
+.admin-body .form-section h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #172033;
+}
+
+.admin-body .form-section p {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.admin-body .hours-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-body .hours-row {
+    display: grid;
+    grid-template-columns: 160px 140px 1fr;
+    gap: 16px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #fbfcff;
+}
+
+.admin-body .hours-day {
+    font-weight: 800;
+    color: #172033;
+}
+
+.admin-body .hours-closed {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #172033;
+}
+
+.admin-body .hours-time-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.admin-body .hours-time {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-body .hours-time label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.admin-body .hours-time input {
+    border: 1px solid #d8dde8;
+    border-radius: 12px;
+    padding: 11px 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+@media (max-width: 900px) {
+    .admin-body .hours-row {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-body .hours-time-block {
+        grid-template-columns: 1fr;
+    }
+}
