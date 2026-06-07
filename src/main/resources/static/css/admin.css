@@ -673,12 +673,63 @@ body {
     outline: none;
 }
 
+.admin-body .restaurant-tables-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-body .restaurant-tables-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-body .restaurant-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 14px;
+    align-items: end;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #fbfcff;
+}
+
+.admin-body .table-add-button {
+    align-self: flex-start;
+}
+
+.admin-body .table-remove-button {
+    border: none;
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: #eef0f5;
+    color: #172033;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-body .table-remove-button:hover:not(:disabled) {
+    background: #dde2ec;
+}
+
+.admin-body .table-remove-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
 @media (max-width: 900px) {
     .admin-body .hours-row {
         grid-template-columns: 1fr;
     }
 
     .admin-body .hours-time-block {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-body .restaurant-table-row {
         grid-template-columns: 1fr;
     }
 }

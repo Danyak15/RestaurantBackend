@@ -4,6 +4,8 @@ import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
+import jakarta.validation.Valid
 import org.example.restaurantbackend.dto.mappers.defaultRestaurantHours
 
 data class CreateRestaurantRequest(
@@ -29,5 +31,9 @@ data class CreateRestaurantRequest(
     )
     val phone: String? = null,
 
-    val workingHours: MutableList<RestaurantHoursRequest> = defaultRestaurantHours()
+    val workingHours: MutableList<RestaurantHoursRequest> = defaultRestaurantHours(),
+
+    @field:Valid
+    @field:Size(min = 1, message = "Нужно добавить хотя бы один столик")
+    val tables: MutableList<RestaurantTableRequest> = mutableListOf(RestaurantTableRequest())
 )

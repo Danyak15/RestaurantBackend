@@ -143,6 +143,64 @@
                     </div>
                 </div>
 
+                <div class="restaurant-tables-section" th:if="${!isEdit}">
+                    <div class="form-section">
+                        <h3>Столики</h3>
+                    </div>
+
+                    <div class="restaurant-tables-list" id="restaurantTablesList">
+                        <div class="restaurant-table-row"
+                             th:each="table, iter : *{tables}"
+                             data-table-row>
+
+                            <div class="form-group">
+                                <label data-capacity-label
+                                       th:for="|tables-${iter.index}-capacity|">Количество гостей</label>
+                                <input th:id="|tables-${iter.index}-capacity|"
+                                       data-capacity-input
+                                       type="number"
+                                       min="1"
+                                       th:field="*{tables[__${iter.index}__].capacity}"
+                                       required>
+
+                                <p class="field-error"
+                                   th:if="${#fields.hasErrors('tables[' + iter.index + '].capacity')}"
+                                   th:errors="*{tables[__${iter.index}__].capacity}">
+                                </p>
+                            </div>
+
+                            <div class="form-group">
+                                <label data-quantity-label
+                                       th:for="|tables-${iter.index}-quantity|">Количество столиков</label>
+                                <input th:id="|tables-${iter.index}-quantity|"
+                                       data-quantity-input
+                                       type="number"
+                                       min="1"
+                                       th:field="*{tables[__${iter.index}__].quantity}"
+                                       required>
+
+                                <p class="field-error"
+                                   th:if="${#fields.hasErrors('tables[' + iter.index + '].quantity')}"
+                                   th:errors="*{tables[__${iter.index}__].quantity}">
+                                </p>
+                            </div>
+
+                            <button class="table-remove-button" type="button" data-remove-table>
+                                Удалить
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="field-error"
+                       th:if="${#fields.hasErrors('tables')}"
+                       th:errors="*{tables}">
+                    </p>
+
+                    <button class="secondary-button table-add-button" type="button" id="addRestaurantTable">
+                        Добавить столик
+                    </button>
+                </div>
+
                 <div class="form-actions">
                     <a class="secondary-button" th:href="@{/admin/restaurants}">
                         Назад
@@ -183,6 +241,104 @@
             checkbox.addEventListener("change", updateState);
             updateState();
         });
+
+        const tablesList = document.getElementById("restaurantTablesList");
+        const addTableButton = document.getElementById("addRestaurantTable");
+
+        function updateTableRows() {
+            if (!tablesList) {
+                return;
+            }
+
+            const rows = tablesList.querySelectorAll("[data-table-row]");
+
+            rows.forEach((row, index) => {
+                const capacityLabel = row.querySelector("[data-capacity-label]");
+                const capacityInput = row.querySelector("[data-capacity-input]");
+                const quantityLabel = row.querySelector("[data-quantity-label]");
+                const quantityInput = row.querySelector("[data-quantity-input]");
+                const removeButton = row.querySelector("[data-remove-table]");
+
+                if (capacityLabel && capacityInput) {
+                    capacityLabel.setAttribute("for", `tables-${index}-capacity`);
+                    capacityInput.id = `tables-${index}-capacity`;
+                    capacityInput.name = `tables[${index}].capacity`;
+                }
+
+                if (quantityLabel && quantityInput) {
+                    quantityLabel.setAttribute("for", `tables-${index}-quantity`);
+                    quantityInput.id = `tables-${index}-quantity`;
+                    quantityInput.name = `tables[${index}].quantity`;
+                }
+
+                if (removeButton) {
+                    removeButton.disabled = rows.length === 1;
+                }
+            });
+        }
+
+        function createTableRow(index) {
+            const row = document.createElement("div");
+            row.className = "restaurant-table-row";
+            row.dataset.tableRow = "";
+
+            row.innerHTML = `
+                <div class="form-group">
+                    <label data-capacity-label for="tables-${index}-capacity">Количество гостей</label>
+                    <input id="tables-${index}-capacity"
+                           data-capacity-input
+                           type="number"
+                           min="1"
+                           name="tables[${index}].capacity"
+                           value="2"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label data-quantity-label for="tables-${index}-quantity">Количество столиков</label>
+                    <input id="tables-${index}-quantity"
+                           data-quantity-input
+                           type="number"
+                           min="1"
+                           name="tables[${index}].quantity"
+                           value="1"
+                           required>
+                </div>
+
+                <button class="table-remove-button" type="button" data-remove-table>
+                    Удалить
+                </button>
+            `;
+
+            return row;
+        }
+
+        if (tablesList && addTableButton) {
+            addTableButton.addEventListener("click", function () {
+                const index = tablesList.querySelectorAll("[data-table-row]").length;
+                tablesList.appendChild(createTableRow(index));
+                updateTableRows();
+            });
+
+            tablesList.addEventListener("click", function (event) {
+                const removeButton = event.target.closest("[data-remove-table]");
+
+                if (!removeButton) {
+                    return;
+                }
+
+                const rows = tablesList.querySelectorAll("[data-table-row]");
+
+                if (rows.length === 1) {
+                    return;
+                }
+
+                removeButton.closest("[data-table-row]").remove();
+                updateTableRows();
+            });
+
+            updateTableRows();
+        }
     });
 </script>
 </body>

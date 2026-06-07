@@ -3,11 +3,14 @@ package org.example.restaurantbackend.service
 import org.example.restaurantbackend.dto.mappers.toResponse
 import org.example.restaurantbackend.dto.request.CreateRestaurantRequest
 import org.example.restaurantbackend.dto.request.RestaurantHoursRequest
+import org.example.restaurantbackend.dto.request.RestaurantTableRequest
 import org.example.restaurantbackend.dto.request.UpdateRestaurantRequest
 import org.example.restaurantbackend.dto.response.RestaurantResponse
 import org.example.restaurantbackend.entity.RestaurantEntity
 import org.example.restaurantbackend.entity.RestaurantHoursEntity
+import org.example.restaurantbackend.entity.RestaurantTableEntity
 import org.example.restaurantbackend.repository.RestaurantRepository
+import org.example.restaurantbackend.repository.RestaurantTableRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -18,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class RestaurantService(
     private val restaurantRepository : RestaurantRepository,
+    private val restaurantTableRepository: RestaurantTableRepository,
     private val fileStorageService: FileStorageService
 ) {
     @Transactional(readOnly = true)
@@ -55,7 +59,13 @@ class RestaurantService(
             buildWorkingHours(restaurant, request.workingHours)
         )
 
-        return restaurantRepository.save(restaurant).toResponse()
+        val savedRestaurant = restaurantRepository.save(restaurant)
+
+        restaurantTableRepository.saveAll(
+            buildRestaurantTables(savedRestaurant, request.tables)
+        )
+
+        return savedRestaurant.toResponse()
     }
 
     @Transactional
@@ -119,5 +129,31 @@ class RestaurantService(
                 this.closeTime = if (request.isClosed) null else request.closeTime
             }
         }.toMutableList()
+    }
+
+    private fun buildRestaurantTables(
+        restaurant: RestaurantEntity,
+        tableRequests: List<RestaurantTableRequest>
+    ): List<RestaurantTableEntity> {
+        if (tableRequests.isEmpty()) {
+            throw IllegalArgumentException("Нужно добавить хотя бы один столик")
+        }
+
+        return tableRequests.flatMap { request ->
+            if (request.capacity < 1) {
+                throw IllegalArgumentException("Количество гостей должно быть не меньше 1")
+            }
+
+            if (request.quantity < 1) {
+                throw IllegalArgumentException("Количество столиков должно быть не меньше 1")
+            }
+
+            List(request.quantity) {
+                RestaurantTableEntity().apply {
+                    restaurantEntity = restaurant
+                    capacity = request.capacity
+                }
+            }
+        }
     }
 }
