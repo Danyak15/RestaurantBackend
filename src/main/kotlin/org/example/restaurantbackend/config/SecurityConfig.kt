@@ -32,7 +32,11 @@ class SecurityConfig(
             }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/api/reservations/available-times", "/api/news", "/api/news/**", "/api/auth/**").permitAll()
+                    .requestMatchers("/api/sync",
+                        "/api/news",
+                        "/api/news/**",
+                        "/api/auth/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
