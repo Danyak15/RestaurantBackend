@@ -1,6 +1,6 @@
 package org.example.restaurantbackend.dto.mappers
 
-import org.example.restaurantbackend.dto.response.DishResponse
+import org.example.restaurantbackend.dto.dish.DishResponse
 import org.example.restaurantbackend.entity.DishEntity
 
 fun DishEntity.toResponse() = DishResponse(

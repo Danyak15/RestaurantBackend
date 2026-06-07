@@ -1,11 +1,11 @@
 package org.example.restaurantbackend.service
 
 import org.example.restaurantbackend.dto.mappers.toResponse
-import org.example.restaurantbackend.dto.request.CreateRestaurantRequest
-import org.example.restaurantbackend.dto.request.RestaurantHoursRequest
-import org.example.restaurantbackend.dto.request.RestaurantTableRequest
-import org.example.restaurantbackend.dto.request.UpdateRestaurantRequest
-import org.example.restaurantbackend.dto.response.RestaurantResponse
+import org.example.restaurantbackend.dto.restaurant.CreateRestaurantRequest
+import org.example.restaurantbackend.dto.restaurant.RestaurantHoursRequest
+import org.example.restaurantbackend.dto.reservation.RestaurantTableRequest
+import org.example.restaurantbackend.dto.restaurant.UpdateRestaurantRequest
+import org.example.restaurantbackend.dto.restaurant.RestaurantResponse
 import org.example.restaurantbackend.entity.RestaurantEntity
 import org.example.restaurantbackend.entity.RestaurantHoursEntity
 import org.example.restaurantbackend.entity.RestaurantTableEntity

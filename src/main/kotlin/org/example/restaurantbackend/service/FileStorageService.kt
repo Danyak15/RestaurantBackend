@@ -12,10 +12,12 @@ import java.util.UUID
 class FileStorageService {
     private val restaurantUploadDir: Path = Paths.get("uploads/restaurants")
     private val dishUploadDir: Path = Paths.get("uploads/dishes")
+    private val newsUploadDir: Path = Paths.get("uploads/news")
 
     init {
         Files.createDirectories(restaurantUploadDir)
         Files.createDirectories(dishUploadDir)
+        Files.createDirectories(newsUploadDir)
     }
 
     fun saveRestaurantImage(file: MultipartFile): String {
@@ -68,9 +70,9 @@ class FileStorageService {
     fun replaceDishImage(
         oldImageUrl: String?,
         newFile: MultipartFile?
-    ): String {
+    ): String? {
         if (newFile == null || newFile.isEmpty) {
-            return oldImageUrl ?: ""
+            return oldImageUrl
         }
 
         if (!oldImageUrl.isNullOrBlank()) {
@@ -78,6 +80,48 @@ class FileStorageService {
         }
 
         return saveDishImage(newFile)
+    }
+
+    fun saveNewsImage(file: MultipartFile): String {
+        if (file.isEmpty) {
+            throw IllegalArgumentException("Фото новости обязательно")
+        }
+
+        validateImage(file)
+
+        val extension = getExtension(file.originalFilename)
+        val fileName = "news_${UUID.randomUUID()}.$extension"
+
+        val targetPath = newsUploadDir.resolve(fileName)
+
+        file.inputStream.use { inputStream ->
+            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING)
+        }
+
+        return "/uploads/news/$fileName"
+    }
+
+    fun replaceNewsImage(
+        oldImageUrl: String?,
+        newFile: MultipartFile?
+    ): String? {
+        if (newFile == null || newFile.isEmpty) {
+            return oldImageUrl
+        }
+
+        val newImageUrl = saveNewsImage(newFile)
+
+        if (!oldImageUrl.isNullOrBlank()) {
+            deleteFileByUrl(oldImageUrl)
+        }
+
+        return newImageUrl
+    }
+
+    fun deleteNewsImage(imageUrl: String?) {
+        if (!imageUrl.isNullOrBlank()) {
+            deleteFileByUrl(imageUrl)
+        }
     }
 
     private fun validateImage(file: MultipartFile) {
@@ -117,6 +161,10 @@ class FileStorageService {
 
             imageUrl.startsWith("/uploads/dishes/") -> {
                 dishUploadDir.resolve(imageUrl.removePrefix("/uploads/dishes/"))
+            }
+
+            imageUrl.startsWith("/uploads/news/") -> {
+                newsUploadDir.resolve(imageUrl.removePrefix("/uploads/news/"))
             }
 
             else -> return

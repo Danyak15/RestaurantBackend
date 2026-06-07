@@ -1,11 +1,11 @@
 package org.example.restaurantbackend.service
 
 import org.example.restaurantbackend.dto.mappers.UserMapper
-import org.example.restaurantbackend.dto.request.LoginRequest
-import org.example.restaurantbackend.dto.response.LoginResponse
-import org.example.restaurantbackend.dto.request.RegisterRequest
-import org.example.restaurantbackend.dto.request.UpdateUserRequest
-import org.example.restaurantbackend.dto.response.UserResponse
+import org.example.restaurantbackend.dto.user.LoginRequest
+import org.example.restaurantbackend.dto.user.LoginResponse
+import org.example.restaurantbackend.dto.user.RegisterRequest
+import org.example.restaurantbackend.dto.user.UpdateUserRequest
+import org.example.restaurantbackend.dto.user.UserResponse
 import org.example.restaurantbackend.entity.UserEntity
 import org.example.restaurantbackend.repository.UserRepository
 import org.springframework.http.HttpStatus

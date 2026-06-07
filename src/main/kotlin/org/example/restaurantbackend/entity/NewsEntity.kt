@@ -28,6 +28,9 @@ class NewsEntity {
     @Column(nullable = false)
     var content: String = ""
 
+    @Column(name = "image_url", nullable = false)
+    var imageUrl: String = ""
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     var createdAt: LocalDate? = null

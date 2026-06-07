@@ -472,6 +472,7 @@ body {
 }
 
 .admin-body .form-group input,
+.admin-body .form-group select,
 .admin-body .form-group textarea {
     width: 100%;
     border: 1px solid #d8dde8;
@@ -494,6 +495,7 @@ body {
 }
 
 .admin-body .form-group input:focus,
+.admin-body .form-group select:focus,
 .admin-body .form-group textarea:focus {
     border-color: #d9822b;
     box-shadow: 0 0 0 4px rgba(217, 130, 43, 0.13);

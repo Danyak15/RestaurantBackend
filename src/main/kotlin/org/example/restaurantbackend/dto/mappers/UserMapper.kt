@@ -1,6 +1,6 @@
 package org.example.restaurantbackend.dto.mappers
 
-import org.example.restaurantbackend.dto.response.UserResponse
+import org.example.restaurantbackend.dto.user.UserResponse
 import org.example.restaurantbackend.entity.UserEntity
 import org.example.restaurantbackend.service.LoyaltyService
 import org.springframework.stereotype.Component

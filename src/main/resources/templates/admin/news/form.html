@@ -13,8 +13,28 @@
         </div>
 
         <div class="admin-card form-card">
-            <form th:action="${formAction}" th:object="${request}" method="post">
+            <p class="form-error"
+               th:if="${formError}"
+               th:text="${formError}">
+            </p>
+
+            <form th:action="${formAction}"
+                  th:object="${request}"
+                  method="post"
+                  enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <div class="form-group">
+                    <label for="restaurantId">Ресторан</label>
+                    <select id="restaurantId" th:field="*{restaurantId}">
+                        <option value="">Все рестораны</option>
+                        <option th:each="restaurant : ${restaurants}"
+                                th:value="${restaurant.id}"
+                                th:text="${restaurant.name}">
+                            Ресторан
+                        </option>
+                    </select>
+                </div>
 
                 <div class="form-group">
                     <label for="title">Заголовок</label>
@@ -23,6 +43,11 @@
                            th:field="*{title}"
                            placeholder="Например: Новое сезонное меню"
                            required>
+
+                    <p class="field-error"
+                       th:if="${#fields.hasErrors('title')}"
+                       th:errors="*{title}">
+                    </p>
                 </div>
 
                 <div class="form-group">
@@ -31,6 +56,33 @@
                               th:field="*{content}"
                               placeholder="Введите описание новости"
                               required></textarea>
+
+                    <p class="field-error"
+                       th:if="${#fields.hasErrors('content')}"
+                       th:errors="*{content}">
+                    </p>
+                </div>
+
+                <div class="form-group" th:if="${isEdit}">
+                    <label>Текущее фото</label>
+                    <img class="current-image"
+                         th:if="${currentImageUrl}"
+                         th:src="@{${currentImageUrl}}"
+                         alt="Фото новости">
+                </div>
+
+                <div class="form-group">
+                    <label for="imageFile">Фото новости</label>
+                    <input id="imageFile"
+                           type="file"
+                           name="imageFile"
+                           accept="image/*"
+                           th:required="${!isEdit}">
+
+                    <p class="field-error"
+                       th:if="${imageError}"
+                       th:text="${imageError}">
+                    </p>
                 </div>
 
                 <div class="form-actions">

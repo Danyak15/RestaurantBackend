@@ -1,9 +1,9 @@
 package org.example.restaurantbackend.service
 
 import org.example.restaurantbackend.dto.mappers.toResponse
-import org.example.restaurantbackend.dto.request.CreateDishRequest
-import org.example.restaurantbackend.dto.request.UpdateDishRequest
-import org.example.restaurantbackend.dto.response.DishResponse
+import org.example.restaurantbackend.dto.dish.CreateDishRequest
+import org.example.restaurantbackend.dto.dish.UpdateDishRequest
+import org.example.restaurantbackend.dto.dish.DishResponse
 import org.example.restaurantbackend.entity.DishEntity
 import org.example.restaurantbackend.repository.CategoryRepository
 import org.example.restaurantbackend.repository.DishRepository
@@ -119,7 +119,7 @@ class DishService(
             oldImageUrl = dish.imageUrl,
             newFile = imageFile
         )
-        dish.imageUrl = imageUrl
+        imageUrl?.let { dish.imageUrl = it }
 
         return dishRepository.save(dish).toResponse()
     }

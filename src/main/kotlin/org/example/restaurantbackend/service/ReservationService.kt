@@ -1,7 +1,7 @@
 package org.example.restaurantbackend.service
 
-import org.example.restaurantbackend.dto.request.ReservationRequest
-import org.example.restaurantbackend.dto.response.TimeSlotResponse
+import org.example.restaurantbackend.dto.reservation.ReservationRequest
+import org.example.restaurantbackend.dto.reservation.TimeSlotResponse
 import org.example.restaurantbackend.entity.ReservationEntity
 import org.example.restaurantbackend.entity.enums.ReservationStatus
 import org.example.restaurantbackend.entity.UserEntity
@@ -92,7 +92,7 @@ class ReservationService(
         restaurantId: Long,
         date: LocalDate,
         guests: Int
-        ): List<TimeSlotResponse> {
+    ): List<TimeSlotResponse> {
         if (guests <= 0) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Количество гостей должно быть больше 0")
         }
@@ -111,15 +111,27 @@ class ReservationService(
 
         if (suitableTables.isEmpty()) return result
 
+        val dayStart = LocalDateTime.of(date, LocalTime.of(10, 0))
+        val dayEnd = LocalDateTime.of(date, LocalTime.of(23, 0)).plusHours(2)
+
+        val activeReservations = reservationRepository.findActiveReservationsForPeriod(
+            restaurantId = restaurantId,
+            dayStart = dayStart,
+            dayEnd = dayEnd
+        )
+
         while (!time.isAfter(lastTime)) {
             val startTime = LocalDateTime.of(date, time)
             val endTime = startTime.plusHours(2)
 
-            val busyTableIds = reservationRepository.findBusyTableIds(
-                restaurantId = restaurantId,
-                startTime = startTime,
-                endTime = endTime
-            )
+            val busyTableIds = activeReservations
+                .filter { reservation ->
+                    reservation.startTime < endTime && reservation.endTime > startTime
+                }
+                .mapNotNull { reservation ->
+                    reservation.table.id
+                }
+                .toSet()
 
             val hasAvailableTables = suitableTables.any { table ->
                 val tableId = table.id
@@ -135,7 +147,6 @@ class ReservationService(
 
         return result
     }
-
     private fun findUser(userId: Long): UserEntity {
         return userRepository.findById(userId)
             .orElseThrow { UsernameNotFoundException("Пользователь не найден") }

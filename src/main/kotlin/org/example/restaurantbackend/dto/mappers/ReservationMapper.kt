@@ -1,6 +1,6 @@
 package org.example.restaurantbackend.dto.mappers
 
-import org.example.restaurantbackend.dto.response.ReservationResponse
+import org.example.restaurantbackend.dto.reservation.ReservationResponse
 import org.example.restaurantbackend.entity.ReservationEntity
 
 fun ReservationEntity.toResponse() = ReservationResponse(

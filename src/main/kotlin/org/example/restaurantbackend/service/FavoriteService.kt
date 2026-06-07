@@ -8,6 +8,7 @@ import org.example.restaurantbackend.repository.UserRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class FavoriteService(
@@ -15,6 +16,7 @@ class FavoriteService(
     private val dishRepository: DishRepository,
     private val userRepository: UserRepository
 ) {
+    @Transactional(readOnly = true)
     fun getFavorites(userId: Long): List<Long> {
         val user = findUser(userId)
         return favoriteRepository.findAllByUser(user).map {
@@ -22,6 +24,7 @@ class FavoriteService(
         }
     }
 
+    @Transactional
     fun addFavorite(userId: Long, dishId: Long) {
         val user = findUser(userId)
         val dish = dishRepository.findByIdOrNull(dishId)
@@ -37,6 +40,7 @@ class FavoriteService(
         }
     }
 
+    @Transactional
     fun removeFavorite(userId: Long, dishId: Long) {
         val user = findUser(userId)
 

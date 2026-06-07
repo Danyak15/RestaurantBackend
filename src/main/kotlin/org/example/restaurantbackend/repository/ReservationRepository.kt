@@ -22,4 +22,17 @@ interface ReservationRepository : JpaRepository<ReservationEntity, Long> {
         startTime: LocalDateTime,
         endTime: LocalDateTime
     ): List<Long>
+
+    @Query("""
+   SELECT r FROM ReservationEntity r
+   WHERE r.restaurant.id = :restaurantId
+   AND r.startTime < :dayEnd
+   AND r.endTime > :dayStart
+   AND r.status = org.example.restaurantbackend.entity.enums.ReservationStatus.ACTIVE
+""")
+    fun findActiveReservationsForPeriod(
+        restaurantId: Long,
+        dayStart: LocalDateTime,
+        dayEnd: LocalDateTime
+    ): List<ReservationEntity>
 }

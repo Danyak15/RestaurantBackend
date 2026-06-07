@@ -21,7 +21,9 @@
                 <table class="admin-table">
                     <thead>
                     <tr>
+                        <th>Фото</th>
                         <th>ID</th>
+                        <th>Показ</th>
                         <th>Заголовок</th>
                         <th>Описание</th>
                         <th>Дата создания</th>
@@ -31,7 +33,16 @@
 
                     <tbody>
                     <tr th:each="news : ${newsList}">
+                        <td>
+                            <img class="table-image"
+                                 th:if="${news.imageUrl}"
+                                 th:src="@{${news.imageUrl}}"
+                                 alt="Фото новости">
+                        </td>
+
                         <td th:text="${news.id}"></td>
+
+                        <td th:text="${news.restaurantId == null ? 'Все рестораны' : 'Ресторан #' + news.restaurantId}"></td>
 
                         <td class="news-title" th:text="${news.title}"></td>
 

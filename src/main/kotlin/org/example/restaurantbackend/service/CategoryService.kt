@@ -1,9 +1,9 @@
 package org.example.restaurantbackend.service
 
 import org.example.restaurantbackend.dto.mappers.toResponse
-import org.example.restaurantbackend.dto.request.CreateCategoryRequest
-import org.example.restaurantbackend.dto.request.UpdateCategoryRequest
-import org.example.restaurantbackend.dto.response.CategoryResponse
+import org.example.restaurantbackend.dto.category.CreateCategoryRequest
+import org.example.restaurantbackend.dto.category.UpdateCategoryRequest
+import org.example.restaurantbackend.dto.category.CategoryResponse
 import org.example.restaurantbackend.entity.CategoryEntity
 import org.example.restaurantbackend.repository.CategoryRepository
 import org.example.restaurantbackend.repository.RestaurantRepository

@@ -1,7 +1,7 @@
 package org.example.restaurantbackend.dto.mappers
 
-import org.example.restaurantbackend.dto.request.RestaurantHoursRequest
-import org.example.restaurantbackend.dto.response.RestaurantHoursResponse
+import org.example.restaurantbackend.dto.restaurant.RestaurantHoursRequest
+import org.example.restaurantbackend.dto.restaurant.RestaurantHoursResponse
 import org.example.restaurantbackend.entity.RestaurantHoursEntity
 import java.time.DayOfWeek
 
