@@ -24,8 +24,9 @@ class ReservationEntity {
     @JoinColumn(name = "user_id", nullable = false)
     lateinit var user: UserEntity
 
-    @Column(name = "restaurant_id", nullable = false)
-    var restaurantId: Int = 0
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id", nullable = false)
+    lateinit var restaurant: RestaurantEntity
 
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)

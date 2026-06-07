@@ -1,5 +1,6 @@
 package org.example.restaurantbackend.controller
 
+import jakarta.validation.Valid
 import org.example.restaurantbackend.dto.mappers.toResponse
 import org.example.restaurantbackend.dto.request.ReservationRequest
 import org.example.restaurantbackend.dto.response.ReservationResponse
@@ -37,7 +38,7 @@ class ReservationController(
     @PostMapping
     fun createReservation(
         authentication: Authentication,
-        @RequestBody request: ReservationRequest
+        @Valid @RequestBody request: ReservationRequest
         ): ResponseEntity<ReservationResponse> {
         val userId = authentication.name.toLong()
 
@@ -64,7 +65,7 @@ class ReservationController(
 
     @GetMapping("/available-times")
     fun getAvailableTimes(
-        @RequestParam restaurantId: Int,
+        @RequestParam restaurantId: Long,
         @RequestParam date: LocalDate,
         @RequestParam guests: Int
     ): ResponseEntity<List<TimeSlotResponse>> {

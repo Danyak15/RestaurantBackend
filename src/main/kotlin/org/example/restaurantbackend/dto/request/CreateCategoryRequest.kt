@@ -3,10 +3,10 @@ package org.example.restaurantbackend.dto.request
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 
-data class CategoryRequest(
+data class CreateCategoryRequest(
     @field:NotBlank(message = "Название категории обязательно")
-    val name: String,
+    val name: String = "",
 
-    @field:Min(value = 0, message = "Порядок не должен быть меньше 0")
-    val displayOrder: Int
+    @field:Min(value = 1, message = "Порядок должен быть не меньше 1")
+    val displayOrder: Int = 1
 )

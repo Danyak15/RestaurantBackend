@@ -1,7 +1,8 @@
 package org.example.restaurantbackend.service
 
 import org.example.restaurantbackend.dto.mappers.toResponse
-import org.example.restaurantbackend.dto.request.DishRequest
+import org.example.restaurantbackend.dto.request.CreateDishRequest
+import org.example.restaurantbackend.dto.request.UpdateDishRequest
 import org.example.restaurantbackend.dto.response.DishResponse
 import org.example.restaurantbackend.entity.DishEntity
 import org.example.restaurantbackend.repository.CategoryRepository
@@ -45,10 +46,11 @@ class DishService(
 
         return dish.toResponse()
     }
+
     @Transactional
     fun createDish(
         categoryId: Long,
-        request: DishRequest,
+        request: CreateDishRequest,
         imageFile: MultipartFile
     ): DishResponse {
         val category = categoryRepository.findByIdOrNull(categoryId)
@@ -79,7 +81,7 @@ class DishService(
     fun updateDish(
         categoryId: Long,
         dishId: Long,
-        request: DishRequest,
+        request: UpdateDishRequest,
         imageFile: MultipartFile?
     ): DishResponse {
         val dish = dishRepository.findByIdOrNull(dishId)
@@ -92,28 +94,31 @@ class DishService(
             throw IllegalArgumentException("Блюдо не относится к выбранной категории")
         }
 
-        val dishName = request.name.trim()
+        request.name?.let { name ->
+            val dishName = name.trim()
 
-        if (
-            dishRepository.existsByCategoryIdAndNameIgnoreCaseAndIdNot(
-                categoryId,
-                dishName,
-                dishId
-            )
-        ) {
-            throw IllegalArgumentException("Блюдо с таким названием уже существует")
+            if (
+                dishRepository.existsByCategoryIdAndNameIgnoreCaseAndIdNot(
+                    categoryId,
+                    dishName,
+                    dishId
+                )
+            ) {
+                throw IllegalArgumentException("Блюдо с таким названием уже существует")
+            }
+
+            dish.name = dishName
         }
+
+        request.price?.let { dish.price = it }
+        request.weight?.let { dish.weight = it }
+        request.description?.let { dish.description = it.trim() }
+        request.displayOrder?.let { dish.displayOrder = it }
 
         val imageUrl = fileStorageService.replaceDishImage(
             oldImageUrl = dish.imageUrl,
             newFile = imageFile
         )
-
-        dish.name = dishName
-        dish.price = request.price
-        dish.weight = request.weight
-        dish.description = request.description.trim()
-        dish.displayOrder = request.displayOrder
         dish.imageUrl = imageUrl
 
         return dishRepository.save(dish).toResponse()

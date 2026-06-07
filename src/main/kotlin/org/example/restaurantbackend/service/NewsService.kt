@@ -6,6 +6,7 @@ import org.example.restaurantbackend.dto.request.UpdateNewsRequest
 import org.example.restaurantbackend.dto.response.NewsResponse
 import org.example.restaurantbackend.entity.NewsEntity
 import org.example.restaurantbackend.repository.NewsRepository
+import org.example.restaurantbackend.repository.RestaurantRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -14,10 +15,11 @@ import org.springframework.web.server.ResponseStatusException
 
 @Service
 class NewsService(
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository,
+    private val restaurantRepository: RestaurantRepository
 ) {
     @Transactional(readOnly = true)
-    fun getNews(restaurantId: Int?): List<NewsResponse> {
+    fun getNews(restaurantId: Long?): List<NewsResponse> {
         val news = if (restaurantId == null) {
             newsRepository.findAll()
         } else {
@@ -40,7 +42,7 @@ class NewsService(
     @Transactional
     fun createNews(request: CreateNewsRequest): NewsResponse {
         val news = NewsEntity().apply {
-            restaurantId = request.restaurantId
+            restaurant = request.restaurantId?.let { findRestaurant(it) }
             title = request.title
             content = request.content
         }
@@ -53,7 +55,7 @@ class NewsService(
         val news = newsRepository.findById(id)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Новость не найдена") }
 
-        request.restaurantId?.let { news.restaurantId = it }
+        request.restaurantId?.let { news.restaurant = findRestaurant(it) }
         request.title?.let { news.title = it }
         request.content?.let { news.content = it }
 
@@ -68,4 +70,8 @@ class NewsService(
 
         newsRepository.deleteById(id)
     }
+
+    private fun findRestaurant(restaurantId: Long) =
+        restaurantRepository.findByIdOrNull(restaurantId)
+            ?: throw IllegalArgumentException("Ресторан не найден")
 }

@@ -34,12 +34,10 @@ class AdminRestaurantController(
 
     @GetMapping("/create")
     fun createPage(model: Model): String {
-        model.addAttribute("pageTitle", "Добавить ресторан")
-        model.addAttribute("breadcrumb", "Главная / Рестораны / Добавить")
-        model.addAttribute("formAction", "/admin/restaurants/create")
-        model.addAttribute("request", CreateRestaurantRequest())
-        model.addAttribute("isEdit", false)
-        model.addAttribute("dayNames", dayNames())
+        addRestaurantFormAttributes(
+            model = model,
+            request = CreateRestaurantRequest()
+        )
 
         return "admin/restaurants/form"
     }
@@ -56,11 +54,10 @@ class AdminRestaurantController(
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("pageTitle", "Добавить ресторан")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / Добавить")
-            model.addAttribute("formAction", "/admin/restaurants/create")
-            model.addAttribute("isEdit", false)
-
+            addRestaurantFormAttributes(
+                model = model,
+                request = request
+            )
 
             return "admin/restaurants/form"
         }
@@ -69,11 +66,11 @@ class AdminRestaurantController(
             restaurantService.createRestaurant(request, imageFile)
             "redirect:/admin/restaurants"
         } catch (e: IllegalArgumentException) {
-            model.addAttribute("pageTitle", "Добавить ресторан")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / Добавить")
-            model.addAttribute("formAction", "/admin/restaurants/create")
-            model.addAttribute("isEdit", false)
-            model.addAttribute("formError", e.message)
+            addRestaurantFormAttributes(
+                model = model,
+                request = request,
+                formError = e.message
+            )
 
             "admin/restaurants/form"
         }
@@ -86,16 +83,9 @@ class AdminRestaurantController(
     ): String {
         val restaurant = restaurantService.getRestaurantById(id)
 
-        model.addAttribute("pageTitle", "Редактировать ресторан")
-        model.addAttribute("breadcrumb", "Главная / Рестораны / Редактировать")
-        model.addAttribute("formAction", "/admin/restaurants/$id/edit")
-        model.addAttribute("isEdit", true)
-        model.addAttribute("dayNames", dayNames())
-        model.addAttribute("currentImageUrl", restaurant.imageUrl)
-
-        model.addAttribute(
-            "request",
-            UpdateRestaurantRequest(
+        addRestaurantFormAttributes(
+            model = model,
+            request = UpdateRestaurantRequest(
                 name = restaurant.name,
                 cuisine = restaurant.cuisine,
                 address = restaurant.address,
@@ -116,7 +106,9 @@ class AdminRestaurantController(
                         defaultRestaurantHours()
                     }
                     .toMutableList()
-            )
+            ),
+            id = id,
+            currentImageUrl = restaurant.imageUrl
         )
 
         return "admin/restaurants/form"
@@ -131,11 +123,14 @@ class AdminRestaurantController(
         model: Model
     ): String {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("pageTitle", "Редактировать ресторан")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / Редактировать")
-            model.addAttribute("formAction", "/admin/restaurants/$id/edit")
-            model.addAttribute("isEdit", true)
-            model.addAttribute("currentImageUrl", restaurantService.getRestaurantById(id).imageUrl)
+            val restaurant = restaurantService.getRestaurantById(id)
+
+            addRestaurantFormAttributes(
+                model = model,
+                request = request,
+                id = id,
+                currentImageUrl = restaurant.imageUrl
+            )
 
             return "admin/restaurants/form"
         }
@@ -143,5 +138,31 @@ class AdminRestaurantController(
         restaurantService.updateRestaurant(id, request, imageFile)
 
         return "redirect:/admin/restaurants"
+    }
+
+    private fun addRestaurantFormAttributes(
+        model: Model,
+        request: Any,
+        id: Long? = null,
+        currentImageUrl: String? = null,
+        formError: String? = null
+    ) {
+        val isEdit = id != null
+
+        model.addAttribute("pageTitle", if (isEdit) "Редактировать ресторан" else "Добавить ресторан")
+        model.addAttribute(
+            "breadcrumb",
+            if (isEdit) {
+                "Главная / Рестораны / Редактировать"
+            } else {
+                "Главная / Рестораны / Добавить"
+            }
+        )
+        model.addAttribute("formAction", if (id == null) "/admin/restaurants/create" else "/admin/restaurants/$id/edit")
+        model.addAttribute("request", request)
+        model.addAttribute("isEdit", isEdit)
+        model.addAttribute("dayNames", dayNames())
+        currentImageUrl?.let { model.addAttribute("currentImageUrl", it) }
+        formError?.let { model.addAttribute("formError", it) }
     }
 }

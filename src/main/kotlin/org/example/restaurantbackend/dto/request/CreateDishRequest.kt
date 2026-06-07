@@ -3,7 +3,7 @@ package org.example.restaurantbackend.dto.request
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 
-data class DishRequest(
+data class CreateDishRequest(
     @field:NotBlank(message = "Название блюда обязательно")
     var name: String = "",
 
@@ -16,6 +16,6 @@ data class DishRequest(
     @field:NotBlank(message = "Описание обязательно")
     var description: String = "",
 
-    @field:Min(value = 0, message = "Порядок отображения должен быть не меньше 0")
-    var displayOrder: Int = 0
+    @field:Min(value = 1, message = "Порядок отображения должен быть не меньше 1")
+    var displayOrder: Int = 1
 )

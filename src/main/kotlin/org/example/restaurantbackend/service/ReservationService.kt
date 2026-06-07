@@ -6,6 +6,7 @@ import org.example.restaurantbackend.entity.ReservationEntity
 import org.example.restaurantbackend.entity.enums.ReservationStatus
 import org.example.restaurantbackend.entity.UserEntity
 import org.example.restaurantbackend.repository.ReservationRepository
+import org.example.restaurantbackend.repository.RestaurantRepository
 import org.example.restaurantbackend.repository.RestaurantTableRepository
 import org.example.restaurantbackend.repository.UserRepository
 import org.springframework.http.HttpStatus
@@ -20,6 +21,7 @@ import java.time.LocalTime
 @Service
 class ReservationService(
     private val loyaltyService: LoyaltyService,
+    private val restaurantRepository: RestaurantRepository,
     private val reservationRepository: ReservationRepository,
     private val restaurantTableRepository: RestaurantTableRepository,
     private val userRepository: UserRepository
@@ -33,20 +35,14 @@ class ReservationService(
     @Transactional
     fun createReservation(userId: Long, request: ReservationRequest): ReservationEntity {
         val user = findUser(userId)
-
-        if (request.guests <= 0) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Количество гостей должно быть больше 0")
-        }
-
-        if (request.dateTime.isBefore(LocalDateTime.now())) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Нельзя создать бронь на прошедшее время")
-        }
+        val restaurant = restaurantRepository.findById(request.restaurantId)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Ресторан не найден") }
 
         val startTime = request.dateTime
         val endTime = startTime.plusHours(2)
 
         val suitableTables = restaurantTableRepository
-            .findAllByRestaurantIdAndCapacityGreaterThanEqualOrderByCapacityAsc(
+            .findAllByRestaurantEntityIdAndCapacityGreaterThanEqualOrderByCapacityAsc(
                 restaurantId = request.restaurantId,
                 capacity = request.guests
             )
@@ -64,7 +60,7 @@ class ReservationService(
 
         val reservation = ReservationEntity().apply {
             this.user = user
-            this.restaurantId = request.restaurantId
+            this.restaurant = restaurant
             this.table = availableTable
             this.startTime = startTime
             this.endTime = endTime
@@ -93,7 +89,7 @@ class ReservationService(
 
     @Transactional
     fun getAvailableTimes(
-        restaurantId: Int,
+        restaurantId: Long,
         date: LocalDate,
         guests: Int
         ): List<TimeSlotResponse> {
@@ -108,7 +104,7 @@ class ReservationService(
         val now = LocalDateTime.now()
 
         val suitableTables = restaurantTableRepository
-            .findAllByRestaurantIdAndCapacityGreaterThanEqualOrderByCapacityAsc(
+            .findAllByRestaurantEntityIdAndCapacityGreaterThanEqualOrderByCapacityAsc(
                 restaurantId = restaurantId,
                 capacity = guests
             )

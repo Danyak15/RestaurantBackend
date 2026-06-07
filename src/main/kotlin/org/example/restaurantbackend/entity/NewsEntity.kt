@@ -5,6 +5,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.CreationTimestamp
 import java.time.LocalDate
@@ -16,8 +18,9 @@ class NewsEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
-    @Column(name = "restaurant_id", nullable = true)
-    var restaurantId: Int? = null
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id", nullable = true)
+    var restaurant: RestaurantEntity? = null
 
     @Column(nullable = false)
     var title: String = ""

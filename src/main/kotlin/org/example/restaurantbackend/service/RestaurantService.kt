@@ -72,20 +72,22 @@ class RestaurantService(
             newFile = imageFile
         )
 
-        request.name?.let { restaurant.name = it }
-        request.cuisine?.let { restaurant.cuisine = it }
-        request.address?.let { restaurant.address = it }
-        request.description?.let { restaurant.description = it }
+        request.name?.let { restaurant.name = it.trim() }
+        request.cuisine?.let { restaurant.cuisine = it.trim() }
+        request.address?.let { restaurant.address = it.trim() }
+        request.description?.let { restaurant.description = it.trim() }
         request.rating?.let { restaurant.rating = it }
-        restaurant.phone = request.phone
-            ?.trim()
-            ?.takeIf { it.isNotBlank() }
+        request.phone?.let { phone ->
+            restaurant.phone = phone.trim().takeIf { it.isNotBlank() }
+        }
         newImageFile?.let { restaurant.imageUrl = it }
 
-        restaurant.workingHours.clear()
-        restaurant.workingHours.addAll(
-            buildWorkingHours(restaurant, request.workingHours)
-        )
+        request.workingHours?.let { workingHours ->
+            restaurant.workingHours.clear()
+            restaurant.workingHours.addAll(
+                buildWorkingHours(restaurant, workingHours)
+            )
+        }
 
         return restaurantRepository.save(restaurant).toResponse()
     }

@@ -4,7 +4,6 @@ import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
-import org.example.restaurantbackend.dto.mappers.defaultRestaurantHours
 
 data class UpdateRestaurantRequest(
     @field:NotBlank(message = "Название не должно быть пустым")
@@ -29,5 +28,5 @@ data class UpdateRestaurantRequest(
     )
     val phone: String? = null,
 
-    val workingHours: MutableList<RestaurantHoursRequest> = defaultRestaurantHours()
+    val workingHours: MutableList<RestaurantHoursRequest>? = null
 )

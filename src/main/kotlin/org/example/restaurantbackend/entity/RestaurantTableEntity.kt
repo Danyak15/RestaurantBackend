@@ -5,6 +5,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
@@ -14,8 +16,9 @@ class RestaurantTableEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    @Column(name = "restaurant_id", nullable = false)
-    var restaurantId: Int = 0
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id", nullable = false)
+    lateinit var restaurantEntity: RestaurantEntity
 
     @Column(nullable = false)
     var capacity: Int = 0

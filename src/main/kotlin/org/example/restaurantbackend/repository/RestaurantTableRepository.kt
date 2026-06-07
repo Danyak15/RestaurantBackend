@@ -5,8 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 
 interface RestaurantTableRepository: JpaRepository<RestaurantTableEntity, Long> {
-    fun findAllByRestaurantIdAndCapacityGreaterThanEqualOrderByCapacityAsc(
-        restaurantId: Int,
+    fun findAllByRestaurantEntityIdAndCapacityGreaterThanEqualOrderByCapacityAsc(
+        restaurantId: Long,
         capacity: Int
     ): List<RestaurantTableEntity>
 }

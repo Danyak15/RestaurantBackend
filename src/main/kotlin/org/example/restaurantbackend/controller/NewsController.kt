@@ -15,7 +15,7 @@ class NewsController(
 ) {
     @GetMapping
     fun getNews(
-        @RequestParam(required = false) restaurantId: Int?
+        @RequestParam(required = false) restaurantId: Long?
     ): ResponseEntity<List<NewsResponse>> {
         val news = newsService.getNews(restaurantId)
         return ResponseEntity.ok(news)

@@ -3,7 +3,7 @@ package org.example.restaurantbackend.dto.request
 import jakarta.validation.constraints.NotBlank
 
 data class CreateNewsRequest(
-    val restaurantId: Int?,
+    val restaurantId: Long?,
 
     @field:NotBlank(message = "Заголовок не должен быть пустым")
     val title: String,

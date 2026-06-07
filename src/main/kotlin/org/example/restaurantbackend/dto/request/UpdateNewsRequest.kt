@@ -3,11 +3,11 @@ package org.example.restaurantbackend.dto.request
 import jakarta.validation.constraints.Size
 
 data class UpdateNewsRequest(
-    val restaurantId: Int?,
+    val restaurantId: Long? = null,
 
     @field:Size(min = 1, message = "Заголовок не должен быть пустым")
-    val title: String?,
+    val title: String? = null,
 
     @field:Size(min = 1, message = "Контент не должен быть пустым")
-    val content: String?
+    val content: String? = null
 )

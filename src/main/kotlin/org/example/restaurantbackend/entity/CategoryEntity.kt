@@ -24,5 +24,5 @@ class CategoryEntity {
     var name: String = ""
 
     @Column(name = "display_order", nullable = false)
-    var displayOrder: Int = 0
+    var displayOrder: Int = 1
 }

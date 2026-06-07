@@ -1,7 +1,9 @@
 package org.example.restaurantbackend.controller
 
 import jakarta.validation.Valid
-import org.example.restaurantbackend.dto.request.CategoryRequest
+import org.example.restaurantbackend.dto.request.CreateCategoryRequest
+import org.example.restaurantbackend.dto.request.UpdateCategoryRequest
+import org.example.restaurantbackend.dto.response.RestaurantResponse
 import org.example.restaurantbackend.service.CategoryService
 import org.example.restaurantbackend.service.RestaurantService
 import org.springframework.stereotype.Controller
@@ -41,11 +43,12 @@ class AdminCategoryController(
     ): String {
         val restaurant = restaurantService.getRestaurantById(restaurantId)
 
-        model.addAttribute("pageTitle", "Добавить категорию")
-        model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / Добавить категорию")
-        model.addAttribute("restaurant", restaurant)
-        model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/create")
-        model.addAttribute("request", CategoryRequest("", 0))
+        addCategoryFormAttributes(
+            model = model,
+            restaurant = restaurant,
+            restaurantId = restaurantId,
+            request = CreateCategoryRequest()
+        )
 
         return "admin/categories/form"
     }
@@ -53,18 +56,19 @@ class AdminCategoryController(
     @PostMapping("/create")
     fun createCategory(
         @PathVariable restaurantId: Long,
-        @Valid @ModelAttribute request: CategoryRequest,
+        @Valid @ModelAttribute request: CreateCategoryRequest,
         bindingResult: BindingResult,
         model: Model
     ): String {
         val restaurant = restaurantService.getRestaurantById(restaurantId)
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("pageTitle", "Добавить категорию")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / Добавить категорию")
-            model.addAttribute("restaurant", restaurant)
-            model.addAttribute("request", request)
-            model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/create")
+            addCategoryFormAttributes(
+                model = model,
+                restaurant = restaurant,
+                restaurantId = restaurantId,
+                request = request
+            )
 
             return "admin/categories/form"
         }
@@ -73,12 +77,13 @@ class AdminCategoryController(
             categoryService.createCategory(restaurantId, request)
             "redirect:/admin/restaurants/$restaurantId/categories"
         } catch (e: IllegalArgumentException) {
-            model.addAttribute("pageTitle", "Добавить категорию")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / Добавить категорию")
-            model.addAttribute("restaurant", restaurant)
-            model.addAttribute("request", request)
-            model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/create")
-            model.addAttribute("formError", e.message)
+            addCategoryFormAttributes(
+                model = model,
+                restaurant = restaurant,
+                restaurantId = restaurantId,
+                request = request,
+                formError = e.message
+            )
 
             "admin/categories/form"
         }
@@ -93,13 +98,12 @@ class AdminCategoryController(
         val restaurant = restaurantService.getRestaurantById(restaurantId)
         val category = categoryService.getCategoryById(categoryId)
 
-        model.addAttribute("pageTitle", "Редактировать категорию")
-        model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / Редактировать категорию")
-        model.addAttribute("restaurant", restaurant)
-        model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/edit")
-        model.addAttribute(
-            "request",
-            CategoryRequest(
+        addCategoryFormAttributes(
+            model = model,
+            restaurant = restaurant,
+            restaurantId = restaurantId,
+            categoryId = categoryId,
+            request = UpdateCategoryRequest(
                 name = category.name,
                 displayOrder = category.displayOrder
             )
@@ -112,18 +116,20 @@ class AdminCategoryController(
     fun updateCategory(
         @PathVariable restaurantId: Long,
         @PathVariable categoryId: Long,
-        @Valid @ModelAttribute("request") request: CategoryRequest,
+        @Valid @ModelAttribute("request") request: UpdateCategoryRequest,
         bindingResult: BindingResult,
         model: Model
     ): String {
         val restaurant = restaurantService.getRestaurantById(restaurantId)
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("pageTitle", "Редактировать категорию")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / Редактировать категорию")
-            model.addAttribute("restaurant", restaurant)
-            model.addAttribute("request", request)
-            model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/edit")
+            addCategoryFormAttributes(
+                model = model,
+                restaurant = restaurant,
+                restaurantId = restaurantId,
+                categoryId = categoryId,
+                request = request
+            )
 
             return "admin/categories/form"
         }
@@ -132,14 +138,48 @@ class AdminCategoryController(
             categoryService.updateCategory(restaurantId, categoryId, request)
             "redirect:/admin/restaurants/$restaurantId/categories"
         } catch (e: IllegalArgumentException) {
-            model.addAttribute("pageTitle", "Редактировать категорию")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / Редактировать категорию")
-            model.addAttribute("restaurant", restaurant)
-            model.addAttribute("request", request)
-            model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/edit")
-            model.addAttribute("formError", e.message)
+            addCategoryFormAttributes(
+                model = model,
+                restaurant = restaurant,
+                restaurantId = restaurantId,
+                categoryId = categoryId,
+                request = request,
+                formError = e.message
+            )
 
             "admin/categories/form"
         }
+    }
+
+    private fun addCategoryFormAttributes(
+        model: Model,
+        restaurant: RestaurantResponse,
+        restaurantId: Long,
+        request: Any,
+        categoryId: Long? = null,
+        formError: String? = null
+    ) {
+        val isEdit = categoryId != null
+
+        model.addAttribute("pageTitle", if (isEdit) "Редактировать категорию" else "Добавить категорию")
+        model.addAttribute(
+            "breadcrumb",
+            if (isEdit) {
+                "Главная / Рестораны / ${restaurant.name} / Редактировать категорию"
+            } else {
+                "Главная / Рестораны / ${restaurant.name} / Добавить категорию"
+            }
+        )
+        model.addAttribute("restaurant", restaurant)
+        model.addAttribute("request", request)
+        model.addAttribute(
+            "formAction",
+            if (categoryId == null) {
+                "/admin/restaurants/$restaurantId/categories/create"
+            } else {
+                "/admin/restaurants/$restaurantId/categories/$categoryId/edit"
+            }
+        )
+        formError?.let { model.addAttribute("formError", it) }
     }
 }

@@ -12,13 +12,13 @@ interface ReservationRepository : JpaRepository<ReservationEntity, Long> {
 
     @Query("""
        SELECT r.table.id FROM ReservationEntity r
-       WHERE r.restaurantId = :restaurantId
+       WHERE r.restaurant.id = :restaurantId
        AND r.startTime < :endTime
        AND r.endTime > :startTime
        AND r.status = org.example.restaurantbackend.entity.enums.ReservationStatus.ACTIVE
     """)
     fun findBusyTableIds(
-        restaurantId: Int,
+        restaurantId: Long,
         startTime: LocalDateTime,
         endTime: LocalDateTime
     ): List<Long>

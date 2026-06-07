@@ -5,7 +5,7 @@ import org.example.restaurantbackend.entity.NewsEntity
 
 fun NewsEntity.toResponse() = NewsResponse(
     id = id ?: throw IllegalStateException("Id новости null"),
-    restaurantId = restaurantId,
+    restaurantId = restaurant?.id,
     title = title,
     content = content,
     createdAt = createdAt ?: throw IllegalStateException("Время создания новости null")

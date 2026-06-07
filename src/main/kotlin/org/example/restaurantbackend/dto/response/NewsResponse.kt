@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 data class NewsResponse(
     val id: Long,
-    val restaurantId: Int?,
+    val restaurantId: Long?,
     val title: String,
     val content: String,
     val createdAt: LocalDate

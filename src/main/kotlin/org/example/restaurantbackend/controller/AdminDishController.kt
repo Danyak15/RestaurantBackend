@@ -1,7 +1,10 @@
 package org.example.restaurantbackend.controller
 
 import jakarta.validation.Valid
-import org.example.restaurantbackend.dto.request.DishRequest
+import org.example.restaurantbackend.dto.request.CreateDishRequest
+import org.example.restaurantbackend.dto.request.UpdateDishRequest
+import org.example.restaurantbackend.dto.response.CategoryResponse
+import org.example.restaurantbackend.dto.response.RestaurantResponse
 import org.example.restaurantbackend.service.CategoryService
 import org.example.restaurantbackend.service.DishService
 import org.example.restaurantbackend.service.RestaurantService
@@ -51,13 +54,14 @@ class AdminDishController(
         val restaurant = restaurantService.getRestaurantById(restaurantId)
         val category = categoryService.getCategoryById(categoryId)
 
-        model.addAttribute("pageTitle", "Добавить блюдо")
-        model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / ${category.name} / Добавить блюдо")
-        model.addAttribute("restaurant", restaurant)
-        model.addAttribute("category", category)
-        model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/dishes/create")
-        model.addAttribute("request", DishRequest())
-        model.addAttribute("isEdit", false)
+        addDishFormAttributes(
+            model = model,
+            restaurant = restaurant,
+            category = category,
+            restaurantId = restaurantId,
+            categoryId = categoryId,
+            request = CreateDishRequest()
+        )
 
         return "admin/dishes/form"
     }
@@ -66,7 +70,7 @@ class AdminDishController(
     fun createDish(
         @PathVariable restaurantId: Long,
         @PathVariable categoryId: Long,
-        @Valid @ModelAttribute("request") request: DishRequest,
+        @Valid @ModelAttribute("request") request: CreateDishRequest,
         bindingResult: BindingResult,
         @RequestParam("imageFile") imageFile: MultipartFile,
         model: Model
@@ -79,13 +83,14 @@ class AdminDishController(
         }
 
         if (bindingResult.hasErrors() || imageFile.isEmpty) {
-            model.addAttribute("pageTitle", "Добавить блюдо")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / ${category.name} / Добавить блюдо")
-            model.addAttribute("restaurant", restaurant)
-            model.addAttribute("category", category)
-            model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/dishes/create")
-            model.addAttribute("request", request)
-            model.addAttribute("isEdit", false)
+            addDishFormAttributes(
+                model = model,
+                restaurant = restaurant,
+                category = category,
+                restaurantId = restaurantId,
+                categoryId = categoryId,
+                request = request
+            )
 
             return "admin/dishes/form"
         }
@@ -94,14 +99,15 @@ class AdminDishController(
             dishService.createDish(categoryId, request, imageFile)
             "redirect:/admin/restaurants/$restaurantId/categories/$categoryId/dishes"
         } catch (e: IllegalArgumentException) {
-            model.addAttribute("pageTitle", "Добавить блюдо")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / ${category.name} / Добавить блюдо")
-            model.addAttribute("restaurant", restaurant)
-            model.addAttribute("category", category)
-            model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/dishes/create")
-            model.addAttribute("request", request)
-            model.addAttribute("isEdit", false)
-            model.addAttribute("formError", e.message)
+            addDishFormAttributes(
+                model = model,
+                restaurant = restaurant,
+                category = category,
+                restaurantId = restaurantId,
+                categoryId = categoryId,
+                request = request,
+                formError = e.message
+            )
 
             "admin/dishes/form"
         }
@@ -118,23 +124,21 @@ class AdminDishController(
         val category = categoryService.getCategoryById(categoryId)
         val dish = dishService.getDishById(dishId)
 
-        model.addAttribute("pageTitle", "Редактировать блюдо")
-        model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / ${category.name} / Редактировать блюдо")
-        model.addAttribute("restaurant", restaurant)
-        model.addAttribute("category", category)
-        model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/dishes/$dishId/edit")
-        model.addAttribute("isEdit", true)
-        model.addAttribute("currentImageUrl", dish.imageUrl)
-
-        model.addAttribute(
-            "request",
-            DishRequest(
+        addDishFormAttributes(
+            model = model,
+            restaurant = restaurant,
+            category = category,
+            restaurantId = restaurantId,
+            categoryId = categoryId,
+            request = UpdateDishRequest(
                 name = dish.name,
                 price = dish.price,
                 weight = dish.weight,
                 description = dish.description,
                 displayOrder = dish.displayOrder
-            )
+            ),
+            dishId = dishId,
+            currentImageUrl = dish.imageUrl
         )
 
         return "admin/dishes/form"
@@ -145,7 +149,7 @@ class AdminDishController(
         @PathVariable restaurantId: Long,
         @PathVariable categoryId: Long,
         @PathVariable dishId: Long,
-        @Valid @ModelAttribute("request") request: DishRequest,
+        @Valid @ModelAttribute("request") request: UpdateDishRequest,
         bindingResult: BindingResult,
         @RequestParam("imageFile", required = false) imageFile: MultipartFile?,
         model: Model
@@ -156,14 +160,16 @@ class AdminDishController(
         if (bindingResult.hasErrors()) {
             val dish = dishService.getDishById(dishId)
 
-            model.addAttribute("pageTitle", "Редактировать блюдо")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / ${category.name} / Редактировать блюдо")
-            model.addAttribute("restaurant", restaurant)
-            model.addAttribute("category", category)
-            model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/dishes/$dishId/edit")
-            model.addAttribute("request", request)
-            model.addAttribute("isEdit", true)
-            model.addAttribute("currentImageUrl", dish.imageUrl)
+            addDishFormAttributes(
+                model = model,
+                restaurant = restaurant,
+                category = category,
+                restaurantId = restaurantId,
+                categoryId = categoryId,
+                request = request,
+                dishId = dishId,
+                currentImageUrl = dish.imageUrl
+            )
 
             return "admin/dishes/form"
         }
@@ -174,17 +180,57 @@ class AdminDishController(
         } catch (e: IllegalArgumentException) {
             val dish = dishService.getDishById(dishId)
 
-            model.addAttribute("pageTitle", "Редактировать блюдо")
-            model.addAttribute("breadcrumb", "Главная / Рестораны / ${restaurant.name} / ${category.name} / Редактировать блюдо")
-            model.addAttribute("restaurant", restaurant)
-            model.addAttribute("category", category)
-            model.addAttribute("formAction", "/admin/restaurants/$restaurantId/categories/$categoryId/dishes/$dishId/edit")
-            model.addAttribute("request", request)
-            model.addAttribute("isEdit", true)
-            model.addAttribute("currentImageUrl", dish.imageUrl)
-            model.addAttribute("formError", e.message)
+            addDishFormAttributes(
+                model = model,
+                restaurant = restaurant,
+                category = category,
+                restaurantId = restaurantId,
+                categoryId = categoryId,
+                request = request,
+                dishId = dishId,
+                currentImageUrl = dish.imageUrl,
+                formError = e.message
+            )
 
             "admin/dishes/form"
         }
+    }
+
+    private fun addDishFormAttributes(
+        model: Model,
+        restaurant: RestaurantResponse,
+        category: CategoryResponse,
+        restaurantId: Long,
+        categoryId: Long,
+        request: Any,
+        dishId: Long? = null,
+        currentImageUrl: String? = null,
+        formError: String? = null
+    ) {
+        val isEdit = dishId != null
+
+        model.addAttribute("pageTitle", if (isEdit) "Редактировать блюдо" else "Добавить блюдо")
+        model.addAttribute(
+            "breadcrumb",
+            if (isEdit) {
+                "Главная / Рестораны / ${restaurant.name} / ${category.name} / Редактировать блюдо"
+            } else {
+                "Главная / Рестораны / ${restaurant.name} / ${category.name} / Добавить блюдо"
+            }
+        )
+        model.addAttribute("restaurant", restaurant)
+        model.addAttribute("category", category)
+        model.addAttribute("request", request)
+        model.addAttribute("isEdit", isEdit)
+        model.addAttribute(
+            "formAction",
+            if (dishId == null) {
+                "/admin/restaurants/$restaurantId/categories/$categoryId/dishes/create"
+            } else {
+                "/admin/restaurants/$restaurantId/categories/$categoryId/dishes/$dishId/edit"
+            }
+        )
+        currentImageUrl?.let { model.addAttribute("currentImageUrl", it) }
+        formError?.let { model.addAttribute("formError", it) }
     }
 }
