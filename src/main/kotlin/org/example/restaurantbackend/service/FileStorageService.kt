@@ -13,11 +13,25 @@ class FileStorageService {
     private val restaurantUploadDir: Path = Paths.get("uploads/restaurants")
     private val dishUploadDir: Path = Paths.get("uploads/dishes")
     private val newsUploadDir: Path = Paths.get("uploads/news")
+    private val userUploadDir: Path = Paths.get("uploads/users")
 
     init {
         Files.createDirectories(restaurantUploadDir)
         Files.createDirectories(dishUploadDir)
         Files.createDirectories(newsUploadDir)
+        Files.createDirectories(userUploadDir)
+    }
+
+    fun saveUserAvatar(userId: Long, file: MultipartFile): String {
+        if (file.isEmpty) throw IllegalArgumentException("Файл не должен быть пустым")
+        validateImage(file)
+
+        val extension = getExtension(file.originalFilename)
+        val fileName = "user_${userId}_avatar.$extension"
+        val targetPath = userUploadDir.resolve(fileName)
+
+        file.inputStream.use { Files.copy(it, targetPath, StandardCopyOption.REPLACE_EXISTING) }
+        return "/uploads/users/$fileName"
     }
 
     fun saveRestaurantImage(file: MultipartFile): String {
@@ -125,16 +139,10 @@ class FileStorageService {
     }
 
     private fun validateImage(file: MultipartFile) {
-        val contentType = file.contentType ?: throw IllegalArgumentException("Неизвестный тип файла")
+        val extension = getExtension(file.originalFilename)
+        val allowedExtensions = setOf("jpg", "jpeg", "png", "webp")
 
-        val allowedTypes = setOf(
-            "image/jpeg",
-            "image/jpg",
-            "image/png",
-            "image/webp"
-        )
-
-        if (contentType !in allowedTypes) {
+        if (extension !in allowedExtensions) {
             throw IllegalArgumentException("Запрещённый тип файла")
         }
     }

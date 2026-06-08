@@ -17,7 +17,7 @@ class ReservationScheduler(
         val now = LocalDateTime.now()
         val expired = reservationRepository.findExpiredActive(now)
 
-        if (expired.isNotEmpty()) return
+        if (expired.isEmpty()) return
 
         expired.forEach { it.status = ReservationStatus.COMPLETED }
         reservationRepository.saveAll(expired)

@@ -12,5 +12,7 @@ fun RestaurantEntity.toResponse() = RestaurantResponse(
     rating = rating,
     phone = phone,
     imageUrl = imageUrl,
-    workingHours = workingHours.map { it.toResponse() }
+    workingHours = workingHours.map { it.toResponse() },
+    minGuests = minGuests,
+    maxGuests = maxGuests
 )

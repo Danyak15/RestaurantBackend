@@ -7,5 +7,6 @@ data class UserResponse(
     val surname: String,
     val email: String?,
     val loyaltyPoints: Int,
-    val loyaltyLevel: String
+    val loyaltyLevel: String,
+    val avatarUrl: String?
 )

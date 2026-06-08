@@ -35,4 +35,7 @@ class UserEntity {
 
     @Column(name = "loyalty_level", nullable = false)
     var loyaltyLevel: String = "BRONZE"
+
+    @Column(name = "avatar_url", nullable = true)
+    var avatarUrl: String? = null
 }

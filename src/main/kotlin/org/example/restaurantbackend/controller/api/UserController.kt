@@ -4,12 +4,15 @@ import jakarta.validation.Valid
 import org.example.restaurantbackend.dto.user.UpdateUserRequest
 import org.example.restaurantbackend.dto.user.UserResponse
 import org.example.restaurantbackend.service.UserService
+import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,5 +32,14 @@ class UserController(
     ): UserResponse {
         val userId = authentication.name.toLong()
         return userService.updateUser(userId, request)
+    }
+
+    @PutMapping("/me/avatar", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun uploadAvatar(
+        authentication: Authentication,
+        @RequestPart("avatar") avatar: MultipartFile
+    ): UserResponse {
+        val userId = authentication.name.toLong()
+        return userService.uploadAvatar(userId, avatar)
     }
 }

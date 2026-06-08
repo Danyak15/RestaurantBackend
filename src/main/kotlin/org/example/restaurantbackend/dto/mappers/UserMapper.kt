@@ -16,6 +16,7 @@ class UserMapper(
         surname = user.surname,
         email = user.email,
         loyaltyPoints = user.loyaltyPoints,
-        loyaltyLevel = loyaltyService.calculateLevel(user.loyaltyPoints)
+        loyaltyLevel = loyaltyService.calculateLevel(user.loyaltyPoints),
+        avatarUrl = user.avatarUrl
     )
 }

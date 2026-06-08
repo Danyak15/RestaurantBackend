@@ -39,4 +39,10 @@ class RestaurantEntity {
 
     @Column(name = "image_url", nullable = false)
     var imageUrl: String = ""
+
+    @Column(name = "min_guests", nullable = false)
+    var minGuests: Int = 1
+
+    @Column(name = "max_guests", nullable = false)
+    var maxGuests: Int = 0
 }

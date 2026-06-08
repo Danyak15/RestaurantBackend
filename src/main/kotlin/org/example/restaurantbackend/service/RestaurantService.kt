@@ -53,17 +53,18 @@ class RestaurantService(
             rating = request.rating
             phone = request.phone?.trim()?.takeIf { it.isNotBlank() }
             this.imageUrl = imageUrl
+            minGuests = 1
         }
 
         restaurant.workingHours.addAll(
             buildWorkingHours(restaurant, request.workingHours)
         )
 
-        val savedRestaurant = restaurantRepository.save(restaurant)
+        val tables = buildRestaurantTables(restaurant, request.tables)
+        restaurant.maxGuests = tables.maxOfOrNull { it.capacity } ?: 0
 
-        restaurantTableRepository.saveAll(
-            buildRestaurantTables(savedRestaurant, request.tables)
-        )
+        val savedRestaurant = restaurantRepository.save(restaurant)
+        restaurantTableRepository.saveAll(tables)
 
         return savedRestaurant.toResponse()
     }
@@ -99,7 +100,9 @@ class RestaurantService(
             )
         }
 
-        return restaurantRepository.save(restaurant).toResponse()
+        val savedRestaurant = restaurantRepository.save(restaurant)
+
+        return savedRestaurant.toResponse()
     }
 
     private fun buildWorkingHours(
